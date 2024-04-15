@@ -5,11 +5,11 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="bg-zinc-900 text-white flex flex-col justify-center items-center gap-8 h-screen">
-      <p className="text-6xl font-bold">Não encontrada</p>
-      <p className="text-2xl">Sorry, this page does not exist 🥺</p>
+    <div className="grid content-center justify-items-center gap-8 h-screen bg-zinc-600 text-white">
+      <p className="text-4xl font-bold">Não encontrada</p>
+      <p className="text-sm">Sorry, this page does not exist 🥺</p>
       <Link href="/">
-        <Button variant="text" color="inherit">
+        <Button variant="text" color="primary" className="font-bold">
           Return Home
         </Button>
       </Link>

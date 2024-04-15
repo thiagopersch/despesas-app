@@ -19,14 +19,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br">
-      <ThemeProviderPage>
+    <ThemeProviderPage>
+      <html lang="pt-br">
         <Suspense fallback={<Loading />}>
           <body className={poppins.className}>
             <main className="flex flex-col">{children}</main>
           </body>
         </Suspense>
-      </ThemeProviderPage>
-    </html>
+      </html>
+    </ThemeProviderPage>
   );
 }

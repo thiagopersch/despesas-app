@@ -7,6 +7,12 @@
     }
   },
   "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": ["@mui/*/*/*"]
+      }
+    ],
     "prefer-arrow-callback": "error",
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "sort-imports": [

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "component:make": "node generators/create-component.js",
+    "template:make": "node generators/create-template-page.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -22,6 +24,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "babel-plugin-import": "^1.13.8",
     "eslint": "^8",
     "eslint-config-next": "14.2.1",
     "postcss": "^8",
