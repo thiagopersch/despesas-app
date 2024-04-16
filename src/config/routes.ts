@@ -1,5 +1,9 @@
 const dropdown = [
   {
+    name: "Despesas",
+    path: "/expenses",
+  },
+  {
     name: "Users",
     path: "/users",
   },

@@ -3,12 +3,10 @@
 import { dropdown } from "@/config/routes";
 import { Add } from "@mui/icons-material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import MenuIcon from "@mui/icons-material/Menu";
 import {
   AppBar,
   Box,
   Button,
-  IconButton,
   Menu,
   MenuItem,
   Toolbar,
@@ -43,7 +41,7 @@ const Navbar = () => {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="relative" color="primary">
         <Toolbar>
-          <IconButton
+          {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
@@ -51,7 +49,7 @@ const Navbar = () => {
             sx={{ mr: 2 }}
           >
             <MenuIcon />
-          </IconButton>
+          </IconButton> */}
           <Typography
             color="inherit"
             variant="h6"
@@ -62,11 +60,12 @@ const Navbar = () => {
           </Typography>
 
           <Box>
-            <Link href="/expenses">
+            <Link href="/expenses/create">
               <Button variant="outlined" color="inherit" startIcon={<Add />}>
                 Cadastrar despesa
               </Button>
             </Link>
+
             <Button
               id="menu"
               aria-controls={open ? "basic-menu" : undefined}
