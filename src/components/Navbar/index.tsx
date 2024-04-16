@@ -1,6 +1,7 @@
 "use client";
 
 import { dropdown } from "@/config/routes";
+import { Add } from "@mui/icons-material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -14,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 
 type Route = {
   path: string;
@@ -40,7 +41,7 @@ const Navbar = () => {
   };
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="fixed" color="primary">
+      <AppBar position="relative" color="primary">
         <Toolbar>
           <IconButton
             size="large"
@@ -61,6 +62,11 @@ const Navbar = () => {
           </Typography>
 
           <Box>
+            <Link href="/expenses">
+              <Button variant="outlined" color="inherit" startIcon={<Add />}>
+                Cadastrar despesa
+              </Button>
+            </Link>
             <Button
               id="menu"
               aria-controls={open ? "basic-menu" : undefined}
@@ -87,7 +93,7 @@ const Navbar = () => {
               }}
             >
               {Object.entries(routes).map(([key, value]) => (
-                <Fragment key={key}>
+                <Box key={key}>
                   {value.map((route) => (
                     <Link href={route.path} key={route.path}>
                       <MenuItem key={route.path} onClick={handleClose}>
@@ -95,7 +101,7 @@ const Navbar = () => {
                       </MenuItem>
                     </Link>
                   ))}
-                </Fragment>
+                </Box>
               ))}
             </Menu>
           </Box>

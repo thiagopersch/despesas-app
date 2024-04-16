@@ -1,5 +1,10 @@
+import LoginForm from "@/components/Login";
 import Base from "../Base";
 
 export default function Login() {
-  return <Base></Base>;
+  return (
+    <Base>
+      <LoginForm />
+    </Base>
+  );
 }

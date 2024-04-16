@@ -22,9 +22,7 @@ export default function RootLayout({
     <ThemeProviderPage>
       <html lang="pt-br">
         <Suspense fallback={<Loading />}>
-          <body className={poppins.className}>
-            <main className="flex flex-col">{children}</main>
-          </body>
+          <body className={poppins.className}>{children}</body>
         </Suspense>
       </html>
     </ThemeProviderPage>
