@@ -19,7 +19,6 @@ import * as S from "./styles";
 
 const FormCreate = () => {
   const [amountToPay, setAmountToPay] = useState("");
-  const [amountPaid, setAmountPaid] = useState("");
   const [portion, setPortion] = useState("");
 
   const {
@@ -38,21 +37,12 @@ const FormCreate = () => {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setAmountToPay(e.target.value);
-    console.log(e.target.value);
-  };
-
-  const handleAmountPaid = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setAmountPaid(e.target.value);
-    console.log(e.target.value);
   };
 
   const handlePortion = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setPortion(e.target.value);
-    console.log(e.target.value);
   };
 
   const calculateParcelValue = () => {
@@ -69,9 +59,12 @@ const FormCreate = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const calculatedAmountPaid = calculateParcelValue();
     const data = {
       amountToPay,
-      amountPaid,
+      amountPaid: parseFloat(
+        calculatedAmountPaid.replace(/\./g, "").replace(",", ".")
+      ),
       portion,
       ...state,
     };
@@ -164,8 +157,8 @@ const FormCreate = () => {
           type="text"
           variant="filled"
           value={calculateParcelValue()}
-          disabled
           fullWidth
+          disabled
           required
         />
       </S.Fields>
