@@ -4,13 +4,10 @@ import media from "styled-media-query";
 export const WrapperTitle = styled.div`
   ${({ theme }) => css`
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    margin: 2rem;
-
-    ${media.lessThan("medium")`
-      font-size: ${theme.fonts.sizes.xsmall};
-    `}
+    flex-wrap: wrap;
+    padding: 1rem;
   `};
 `;
 
@@ -40,8 +37,13 @@ export const CTA = styled.div`
     gap: 1rem;
     margin: ${theme.spacings.small} ${theme.spacings.xhuge};
 
+    > a,
+    button {
+      width: 100%;
+    }
+
     ${media.lessThan("medium")`
-      flex-direction: column;
+      flex-direction: column-reverse;
       align-items: center;
       justify-content: center;
       margin: ${theme.spacings.xsmall};

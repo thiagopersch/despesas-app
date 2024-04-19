@@ -1,5 +1,5 @@
-import Login from '@/templates/Login';
+import Login from "@/templates/Login";
 
 export default function LoginPage() {
-  return <Login/>
+  return <Login />;
 }

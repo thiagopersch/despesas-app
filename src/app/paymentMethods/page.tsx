@@ -1,5 +1,5 @@
-import PaymentMethods from '@/templates/PaymentMethods';
+import PaymentMethods from "@/templates/PaymentMethods";
 
 export default function PaymentMethodsPage() {
-  return <PaymentMethods/>
+  return <PaymentMethods />;
 }

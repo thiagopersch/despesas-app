@@ -1,5 +1,5 @@
-import Years from '@/templates/Years';
+import Years from "@/templates/Years";
 
 export default function YearsPage() {
-  return <Years/>
+  return <Years />;
 }

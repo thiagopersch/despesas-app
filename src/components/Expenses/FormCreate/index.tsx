@@ -55,6 +55,16 @@ const FormCreate = () => {
     console.log(e.target.value);
   };
 
+  const calculateParcelValue = () => {
+    if (!amountToPay || !portion) return 0;
+    const amount = parseFloat(amountToPay.replace(",", "."));
+    const portions = parseInt(portion);
+
+    if (isNaN(amount) || isNaN(portions) || portions === 0) return 0;
+
+    return (amount / portions).toFixed(2).replace(".", ",");
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -68,21 +78,11 @@ const FormCreate = () => {
     console.log(data);
   };
 
-  const calculateParcelValue = () => {
-    if (!amountToPay || !portion) return 0;
-    const amount = parseFloat(amountToPay.replace(",", "."));
-    const portions = parseInt(portion);
-
-    if (isNaN(amount) || isNaN(portions) || portions === 0) return 0;
-
-    return (amount / portions).toFixed(2).replace(".", ",");
-  };
-
   return (
     <form onSubmit={handleSubmit}>
       <S.WrapperTitle>
         <Typography color="primary" variant="h5">
-          {`Criando a despesa: ${state.nameExpense}`}
+          Cadastrando a despesa
         </Typography>
       </S.WrapperTitle>
 
@@ -337,16 +337,16 @@ const FormCreate = () => {
         </FormControl>
       </S.Fields>
 
-      <Link href="/expenses">
-        <S.CTA>
+      <S.CTA>
+        <Link href="/expenses">
           <Button type="reset" variant="outlined" color="success">
             Cancelar
           </Button>
-          <Button type="submit" variant="contained" color="success">
-            Cadastrar
-          </Button>
-        </S.CTA>
-      </Link>
+        </Link>
+        <Button type="submit" variant="contained" color="success">
+          Cadastrar
+        </Button>
+      </S.CTA>
     </form>
   );
 };

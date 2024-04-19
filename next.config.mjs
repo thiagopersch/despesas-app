@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   optimizeFonts: true,
+  swcMinify: true,
   reactStrictMode: true,
   experimental: { esmExternals: true },
   output: "standalone",
-  swcMinify: true,
   compiler: {
     styledComponents: true,
   },
