@@ -56,11 +56,12 @@ const FormCreate = () => {
   };
 
   const calculateParcelValue = () => {
-    if (!amountToPay || !portion) return 0;
-    const amount = parseFloat(amountToPay.replace(",", "."));
+    if (!amountToPay || !portion) return "0,00";
+
+    const amount = parseFloat(amountToPay.replace(/\./g, "").replace(",", "."));
     const portions = parseInt(portion);
 
-    if (isNaN(amount) || isNaN(portions) || portions === 0) return 0;
+    if (isNaN(amount) || isNaN(portions) || portions === 0) return "0,00";
 
     return (amount / portions).toFixed(2).replace(".", ",");
   };
