@@ -1,3 +1,5 @@
+"use client";
+
 import TableStatus from "@/components/TableStatus";
 import TitleDefault from "@/components/TitleDefault";
 import Base from "../Base";

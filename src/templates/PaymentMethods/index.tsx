@@ -1,3 +1,5 @@
+"use client";
+
 import TablePaymentMethods from "@/components/TablePaymentMethods";
 import TitleDefault from "@/components/TitleDefault";
 import Base from "../Base";

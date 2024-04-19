@@ -1,3 +1,5 @@
+"use client";
+
 import TableYear from "@/components/TableYear";
 import TitleDefault from "@/components/TitleDefault";
 import Base from "../Base";

@@ -1,3 +1,5 @@
+"use client";
+
 import TableExpenses from "@/components/TableExpenses";
 import TitleDefault from "@/components/TitleDefault";
 import Base from "../Base";

@@ -1,3 +1,5 @@
+"use client";
+
 import TableMonth from "@/components/TableMonth";
 import TitleDefault from "@/components/TitleDefault";
 import Base from "../Base";

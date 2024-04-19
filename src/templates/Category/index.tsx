@@ -1,3 +1,5 @@
+"use client";
+
 import TableCategories from "@/components/TableCategories";
 import TitleDefault from "@/components/TitleDefault";
 import Base from "../Base";
