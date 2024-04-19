@@ -1,4 +1,9 @@
-const dropdown = [
+type SidebarRoute = {
+  name: string;
+  path: string;
+};
+
+const dropdown: SidebarRoute[] = [
   {
     name: "Despesas",
     path: "/expenses",

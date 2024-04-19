@@ -8,7 +8,7 @@ const Base = ({ children }: BaseProps) => {
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4">{children}</main>
+      <main className="container">{children}</main>
     </>
   );
 };

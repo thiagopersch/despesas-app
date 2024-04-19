@@ -17,7 +17,6 @@ import {
   GridRowModes,
   GridRowModesModel,
   GridRowsProp,
-  GridSlots,
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import {
@@ -29,8 +28,11 @@ import {
   randomUpdatedDate,
   randomUserName,
 } from "@mui/x-data-grid-generator";
+import Link from "next/link";
 import * as React from "react";
 import ContainerTable from "../ContainerTable";
+
+import * as S from "./styles";
 
 const initialRows: GridRowsProp = [
   {
@@ -103,18 +105,20 @@ function EditToolbar(props: EditToolbarProps) {
   };
 
   return (
-    <GridToolbarContainer
-      sx={{ display: "flex", margin: "1rem", justifyContent: "flex-end" }}
-    >
-      <Button
-        variant="contained"
-        color="success"
-        startIcon={<AddIcon />}
-        onClick={handleClick}
+    <Link href="/expenses/create">
+      <GridToolbarContainer
+        sx={{ display: "flex", margin: "1rem", justifyContent: "flex-end" }}
       >
-        Adicionar
-      </Button>
-    </GridToolbarContainer>
+        <Button
+          variant="contained"
+          color="success"
+          startIcon={<AddIcon />}
+          onClick={handleClick}
+        >
+          Adicionar
+        </Button>
+      </GridToolbarContainer>
+    </Link>
   );
 }
 
@@ -296,6 +300,13 @@ export default function TableExpenses() {
 
   return (
     <ContainerTable>
+      <Link href="/expenses/create">
+        <S.CTA>
+          <Button color="success" variant="contained">
+            Criar despesa
+          </Button>
+        </S.CTA>
+      </Link>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -306,9 +317,6 @@ export default function TableExpenses() {
         processRowUpdate={processRowUpdate}
         checkboxSelection
         autoHeight
-        slots={{
-          toolbar: EditToolbar as GridSlots["toolbar"],
-        }}
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 10 },
