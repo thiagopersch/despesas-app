@@ -17,7 +17,14 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import * as S from "./styles";
 
-const FormCreate = () => {
+type calcularParcelasProps = {
+  valorTotal: number;
+  numParcelas: number;
+  mesInicial: number;
+  anoInicial: number;
+};
+
+const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
   const [amountToPay, setAmountToPay] = useState("");
   const [portion, setPortion] = useState("");
 
@@ -31,6 +38,8 @@ const FormCreate = () => {
     handleChangeWhoPaid,
     handleChangeYear,
     handleNameExpenses,
+    handleChangeDueDate,
+    handleChangePaymentDate,
   } = useFormCreate();
 
   const handleAmountToPay = (
@@ -56,6 +65,36 @@ const FormCreate = () => {
     return (amount / portions).toFixed(2).replace(".", ",");
   };
 
+  const calculatePortions = () => {
+    if (!amountToPay || !portion) return "0,00";
+
+    const amount = parseFloat(amountToPay.replace(/\./g, "").replace(",", "."));
+    const portions = parseInt(portion);
+
+    if (isNaN(amount) || isNaN(portions) || portions === 0) return "0,00";
+
+    const valorParcela = (amount / portions).toFixed(2).replace(".", ",");
+    const parcelas = [];
+
+    let dataParcela = new Date(
+      new Date(state.year).getFullYear(),
+      new Date(state.month).getMonth()
+    );
+
+    for (let i = 0; i < parseInt(portion); i++) {
+      const parcela = {
+        value: valorParcela,
+        dueDate: new Date(dataParcela),
+      };
+
+      parcelas.push(parcela);
+
+      dataParcela.setMonth(dataParcela.getMonth() + 1);
+    }
+
+    return parcelas;
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -70,6 +109,10 @@ const FormCreate = () => {
     };
 
     console.log(data);
+
+    const parcelas = calculatePortions();
+
+    console.log("Parcelas calculadas:", parcelas);
   };
 
   return (

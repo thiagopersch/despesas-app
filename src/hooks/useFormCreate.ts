@@ -10,6 +10,8 @@ type FormCreateState = {
   category: string;
   month: string;
   year: string;
+  paymentDate: string;
+  dueDate: string;
 };
 
 type FormCreateActions = {
@@ -25,6 +27,8 @@ const initialState: FormCreateState = {
   category: "",
   month: "",
   year: "",
+  dueDate: "",
+  paymentDate: "",
 };
 
 const reducer = (
@@ -48,6 +52,10 @@ const reducer = (
       return { ...state, month: action.value };
     case "year":
       return { ...state, year: action.value };
+    case "dueDate":
+      return { ...state, dueDate: action.value };
+    case "paymentDate":
+      return { ...state, paymentDate: action.value };
     default:
       return state;
   }
@@ -76,6 +84,8 @@ const useFormCreate = () => {
   const handleChangeCategory = handleInputChange("category");
   const handleChangeMonth = handleInputChange("month");
   const handleChangeYear = handleInputChange("year");
+  const handleChangeDueDate = handleInputChange("dueDate");
+  const handleChangePaymentDate = handleInputChange("paymentDate");
 
   const actions: FormCreateActions = {
     handleNameExpenses: createAction("nameExpense"),
@@ -86,6 +96,8 @@ const useFormCreate = () => {
     handleChangeCategory: createAction("category"),
     handleChangeMonth: createAction("month"),
     handleChangeYear: createAction("year"),
+    handleChangeDueDate: createAction("dueDate"),
+    handleChangePaymentDate: createAction("paymentDate"),
   };
 
   return {
@@ -99,6 +111,8 @@ const useFormCreate = () => {
     handleChangeCategory,
     handleChangeMonth,
     handleChangeYear,
+    handleChangeDueDate,
+    handleChangePaymentDate,
   };
 };
 
