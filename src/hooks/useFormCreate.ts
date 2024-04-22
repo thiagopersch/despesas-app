@@ -10,12 +10,13 @@ type FormCreateState = {
   category: string;
   month: string;
   year: string;
-  paymentDate: string;
-  dueDate: string;
+  paymentDate?: Date;
+  dueDate?: Date;
 };
 
-type FormCreateActions = {
-  [key: string]: (value: string) => void;
+type FormCreateAction = {
+  type: string;
+  value: string | Date;
 };
 
 const initialState: FormCreateState = {
@@ -27,35 +28,35 @@ const initialState: FormCreateState = {
   category: "",
   month: "",
   year: "",
-  dueDate: "",
-  paymentDate: "",
+  dueDate: new Date(),
+  paymentDate: new Date(),
 };
 
 const reducer = (
   state: FormCreateState,
-  action: { type: string; value: string }
-) => {
+  action: FormCreateAction
+): FormCreateState => {
   switch (action.type) {
     case "nameExpense":
-      return { ...state, nameExpense: action.value };
+      return { ...state, nameExpense: action.value.toString() };
     case "status":
-      return { ...state, status: action.value };
+      return { ...state, status: action.value.toString() };
     case "methodPayment":
-      return { ...state, methodPayment: action.value };
+      return { ...state, methodPayment: action.value.toString() };
     case "priority":
-      return { ...state, priority: action.value };
+      return { ...state, priority: action.value.toString() };
     case "whoPaid":
-      return { ...state, whoPaid: action.value };
+      return { ...state, whoPaid: action.value.toString() };
     case "category":
-      return { ...state, category: action.value };
+      return { ...state, category: action.value.toString() };
     case "month":
-      return { ...state, month: action.value };
+      return { ...state, month: action.value.toString() };
     case "year":
-      return { ...state, year: action.value };
+      return { ...state, year: action.value.toString() };
     case "dueDate":
-      return { ...state, dueDate: action.value };
+      return { ...state, dueDate: new Date(action.value) };
     case "paymentDate":
-      return { ...state, paymentDate: action.value };
+      return { ...state, paymentDate: new Date(action.value) };
     default:
       return state;
   }
@@ -70,12 +71,17 @@ const useFormCreate = () => {
       e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent
     ) => {
       const value = e.target.value;
-      dispatch({ type, value });
+      if (type === "dueDate" || type === "paymentDate") {
+        dispatch({ type, value: new Date(value) });
+      } else {
+        dispatch({ type, value });
+      }
     };
 
-  const createAction = (type: string) => (value: string) => {
+  const createAction = (type: string) => (value: string | Date) => {
     dispatch({ type, value });
   };
+
   const handleNameExpenses = handleInputChange("nameExpense");
   const handleChangeStatus = handleInputChange("status");
   const handleChangeMethodPayment = handleInputChange("methodPayment");
@@ -87,7 +93,7 @@ const useFormCreate = () => {
   const handleChangeDueDate = handleInputChange("dueDate");
   const handleChangePaymentDate = handleInputChange("paymentDate");
 
-  const actions: FormCreateActions = {
+  const actions = {
     handleNameExpenses: createAction("nameExpense"),
     handleChangeStatus: createAction("status"),
     handleChangeMethodPayment: createAction("methodPayment"),

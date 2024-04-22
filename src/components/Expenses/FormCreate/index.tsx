@@ -13,20 +13,18 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
 import Link from "next/link";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import * as S from "./styles";
 
-type calcularParcelasProps = {
-  valorTotal: number;
-  numParcelas: number;
-  mesInicial: number;
-  anoInicial: number;
-};
-
-const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
+const FormCreate = () => {
   const [amountToPay, setAmountToPay] = useState("");
   const [portion, setPortion] = useState("");
+  const [parcelas, setParcelas] = useState<{ value: string; date: Dayjs }[]>(
+    []
+  );
+  const [paymentDate, setPaymentDate] = useState<Dayjs | null>();
+  const [dueDate, setDueDate] = useState<Dayjs | null>(dayjs(new Date()));
 
   const {
     state,
@@ -38,9 +36,11 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
     handleChangeWhoPaid,
     handleChangeYear,
     handleNameExpenses,
-    handleChangeDueDate,
-    handleChangePaymentDate,
   } = useFormCreate();
+
+  useEffect(() => {
+    calculatePortions();
+  }, [amountToPay, portion, dueDate, paymentDate]);
 
   const handleAmountToPay = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -52,6 +52,14 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setPortion(e.target.value);
+  };
+
+  const handlePaymentDateChange = (newValue: Dayjs | null) => {
+    setPaymentDate(newValue);
+  };
+
+  const handleDueDateChange = (newValue: Dayjs | null) => {
+    setDueDate(newValue);
   };
 
   const calculateParcelValue = () => {
@@ -66,53 +74,76 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
   };
 
   const calculatePortions = () => {
-    if (!amountToPay || !portion) return "0,00";
+    if (!amountToPay || !portion) return 0;
 
     const amount = parseFloat(amountToPay.replace(/\./g, "").replace(",", "."));
     const portions = parseInt(portion);
+    const selectedDueDate = state.dueDate;
 
-    if (isNaN(amount) || isNaN(portions) || portions === 0) return "0,00";
+    if (isNaN(amount) || isNaN(portions) || portions === 0) return 0;
 
-    const valorParcela = (amount / portions).toFixed(2).replace(".", ",");
-    const parcelas = [];
+    const parcelasCalculadas: { value: string; date: Dayjs }[] = [];
 
-    let dataParcela = new Date(
-      new Date(state.year).getFullYear(),
-      new Date(state.month).getMonth()
-    );
+    let dataParcela = dayjs(selectedDueDate).startOf("month");
+    const months = Math.ceil(portions / 12);
+    let totalMonths = 0;
 
-    for (let i = 0; i < parseInt(portion); i++) {
-      const parcela = {
-        value: valorParcela,
-        dueDate: new Date(dataParcela),
-      };
+    for (let i = 0; i < months; i++) {
+      const parcelasNoAno = Math.min(portions - i * 12, 12);
+      const valorParcelaNoAno = (amount / portions)
+        .toFixed(2)
+        .replace(".", ",");
 
-      parcelas.push(parcela);
+      for (let j = 0; j < parcelasNoAno; j++) {
+        const parcela = {
+          value: valorParcelaNoAno,
+          date: dataParcela.clone(),
+        };
 
-      dataParcela.setMonth(dataParcela.getMonth() + 1);
+        parcelasCalculadas.push(parcela);
+
+        dataParcela = dataParcela.add(1, "month");
+        totalMonths++;
+      }
+
+      if (dataParcela.month() === 0) {
+        dataParcela = dataParcela.add(1, "year");
+      }
     }
 
-    return parcelas;
+    setParcelas(parcelasCalculadas);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const calculatedAmountPaid = calculateParcelValue();
+
+    const formattedDueDate = dueDate?.format("YYYY-MM-DD");
+    const formattedPaymentDate = paymentDate?.format("YYYY-MM-DD");
+
+    const formattedParcels = parcelas.map((parcela) => ({
+      value: parcela.value,
+      date: parcela.date.format(`YYYY-MM-${dayjs(dueDate).format("DD")}`),
+    }));
+
     const data = {
+      ...state,
       amountToPay,
       amountPaid: parseFloat(
         calculatedAmountPaid.replace(/\./g, "").replace(",", ".")
       ),
       portion,
-      ...state,
+      parcelas: {
+        portions: formattedParcels,
+      },
+      dueDate: formattedDueDate,
+      paymentDate: formattedPaymentDate,
     };
 
     console.log(data);
 
-    const parcelas = calculatePortions();
-
-    console.log("Parcelas calculadas:", parcelas);
+    console.log(formattedParcels);
   };
 
   return (
@@ -133,9 +164,8 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           value={state.nameExpense}
           onChange={handleNameExpenses}
           fullWidth
-          required
         />
-        <FormControl fullWidth required variant="filled">
+        <FormControl fullWidth variant="filled">
           <InputLabel id="demo-simple-select-label">Status</InputLabel>
           <Select
             labelId="demo-simple-select-label"
@@ -144,7 +174,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
             label="Status"
             variant="filled"
             onChange={handleChangeStatus}
-            required
             fullWidth
           >
             <MenuItem value="Não pago">Não pago</MenuItem>
@@ -170,7 +199,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           value={amountToPay}
           onChange={handleAmountToPay}
           fullWidth
-          required
         />
         <NumericFormat
           decimalScale={0}
@@ -185,7 +213,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           value={portion}
           onChange={handlePortion}
           fullWidth
-          required
         />
         <NumericFormat
           decimalSeparator={`,`}
@@ -202,7 +229,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           value={calculateParcelValue()}
           fullWidth
           disabled
-          required
         />
       </S.Fields>
 
@@ -214,7 +240,8 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           <DatePicker
             name="paymentToDate"
             format="DD/MM/YYYY"
-            defaultValue={dayjs(new Date())}
+            value={paymentDate}
+            onChange={handlePaymentDateChange}
             label="Data de pagamento"
             slotProps={{
               textField: {
@@ -229,9 +256,10 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           dateAdapter={AdapterDayjs}
         >
           <DatePicker
-            name="paymentToDue"
+            name="dueDate"
             format="DD/MM/YYYY"
-            defaultValue={dayjs(new Date())}
+            value={dueDate}
+            onChange={handleDueDateChange}
             label="Data de vencimento"
             slotProps={{
               textField: {
@@ -244,7 +272,7 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
       </S.Fields>
 
       <S.Fields>
-        <FormControl fullWidth required variant="filled">
+        <FormControl fullWidth variant="filled">
           <InputLabel id="methodPayment">Forma de pagamento</InputLabel>
           <Select
             labelId="methodPayment"
@@ -253,7 +281,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
             label="Forma de pagamento"
             variant="filled"
             onChange={handleChangeMethodPayment}
-            required
             fullWidth
           >
             <MenuItem value="CC">Cartão de crédito</MenuItem>
@@ -263,7 +290,7 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth required variant="filled">
+        <FormControl fullWidth variant="filled">
           <InputLabel id="priority">Prioridade </InputLabel>
           <Select
             labelId="priority"
@@ -272,7 +299,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
             label="Prioridade"
             variant="filled"
             onChange={handleChangePriority}
-            required
             fullWidth
           >
             <MenuItem value="B">Baixa</MenuItem>
@@ -284,7 +310,7 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
       </S.Fields>
 
       <S.Fields>
-        <FormControl fullWidth required variant="filled">
+        <FormControl fullWidth variant="filled">
           <InputLabel id="whoPaid">Quem pagou</InputLabel>
           <Select
             labelId="whoPaid"
@@ -293,7 +319,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
             label="Quem pagou"
             variant="filled"
             onChange={handleChangeWhoPaid}
-            required
             fullWidth
           >
             <MenuItem value="Pexe">Pexe</MenuItem>
@@ -305,7 +330,7 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth required variant="filled">
+        <FormControl fullWidth variant="filled">
           <InputLabel id="category">Categoria</InputLabel>
           <Select
             labelId="category"
@@ -314,7 +339,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
             label="Categoria"
             variant="filled"
             onChange={handleChangeCategory}
-            required
             fullWidth
           >
             <MenuItem value="1">Academia</MenuItem>
@@ -327,7 +351,7 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
       </S.Fields>
 
       <S.Fields>
-        <FormControl fullWidth required variant="filled">
+        <FormControl fullWidth variant="filled">
           <InputLabel id="month">Mês inicial</InputLabel>
           <Select
             labelId="month"
@@ -336,7 +360,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
             label="Mês inicial"
             variant="filled"
             onChange={handleChangeMonth}
-            required
             fullWidth
           >
             <MenuItem value="1">Janeiro</MenuItem>
@@ -354,7 +377,7 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth required variant="filled">
+        <FormControl fullWidth variant="filled">
           <InputLabel id="year">Ano inicial</InputLabel>
           <Select
             labelId="year"
@@ -363,7 +386,6 @@ const FormCreate = ({ anoInicial, mesInicial }: calcularParcelasProps) => {
             label="Ano inicial"
             variant="filled"
             onChange={handleChangeYear}
-            required
             fullWidth
           >
             <MenuItem value="2023">2023</MenuItem>
