@@ -1,5 +1,11 @@
 {
-  "extends": ["next", "next/core-web-vitals", "plugin:storybook/recommended"],
+  "extends": [
+    "next",
+    "next/core-web-vitals",
+    "plugin:storybook/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
   "parser": "@typescript-eslint/parser",
   "settings": {
     "babel": {
@@ -7,6 +13,10 @@
     }
   },
   "rules": {
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "no-restricted-imports": [
       "error",
       {

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Suspense } from "react";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import Loading from "./loading";
 import ThemeProviderPage from "./theme-provider";
@@ -19,12 +21,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ThemeProviderPage>
-      <html lang="pt-br">
+    <html lang="pt-br">
+      <body className={poppins.className}>
         <Suspense fallback={<Loading />}>
-          <body className={poppins.className}>{children}</body>
+          <ThemeProviderPage>
+            {children}
+            <ToastContainer />
+          </ThemeProviderPage>
         </Suspense>
-      </html>
-    </ThemeProviderPage>
+      </body>
+    </html>
   );
 }

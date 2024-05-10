@@ -3,17 +3,29 @@ import media from "styled-media-query";
 
 export const Wrapper = styled.div`
   ${({ theme }) => css`
-    margin-top: 5rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    align-content: center;
-    gap: 1.5rem;
-    padding: 0 30vw;
+    width: 100vw;
+    height: 100vh;
+    margin: -5rem auto;
 
     ${media.lessThan("medium")`
-      padding: 0 10vw;
+      padding: 0 10%;
+      width: 100%;
     `}
   `}
+`;
+
+export const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  gap: 2rem;
+
+  ${media.lessThan("medium")`
+      padding: 10%;
+      width: 100vw;
+    `}
 `;
