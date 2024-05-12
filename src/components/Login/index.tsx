@@ -1,32 +1,69 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 
+import { useCallback, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+
 import { signIn } from "next-auth/react";
-import { SyntheticEvent, useState } from "react";
+import { z } from "zod";
+import ErrorMessage from "../ErrorMessage";
+import { schema } from "./rules/schema";
 import * as S from "./styles";
 
+export type SigninFormData = {
+  login: string;
+  password: string;
+};
+
+type SchemaLogin = z.infer<typeof schema>;
+
 const LoginForm = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const { push } = useRouter();
   const router = useRouter();
+  const {
+    register,
+    control,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SchemaLogin>({
+    criteriaMode: "all",
+    mode: "all",
+    resolver: zodResolver(schema),
+    defaultValues: {
+      login: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = async (e: SyntheticEvent) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<SchemaLogin> = useCallback(
+    async (values: SigninFormData) => {
+      setLoading(true);
+      try {
+        const result = await signIn("credentials", {
+          login: values.login,
+          password: values.password,
+          redirect: false,
+        });
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      console.log(result);
-      return;
-    }
-    router.push("/dashboard");
-  };
+        if (result?.error) {
+          console.log(result);
+          return;
+        }
+        console.log(result);
+        router.push("/dashboard");
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router],
+  );
 
   return (
     <S.Wrapper>
@@ -39,25 +76,27 @@ const LoginForm = () => {
           fontWeight: "bold",
         }}
       >
-        Login
+        Faça seu login
       </Typography>
-      <S.Form onSubmit={handleSubmit}>
+      <S.Form onSubmit={handleSubmit(onSubmit)}>
         <TextField
           type="email"
-          name="login"
           label="E-mail"
           variant="filled"
-          onChange={(e) => setEmail(e.target.value)}
+          {...register("login")}
+          helperText={<ErrorMessage>{errors.login?.message}</ErrorMessage>}
           required
+          disabled={loading}
           fullWidth
         />
         <TextField
           type="password"
-          name="password"
+          {...register("password")}
           label="Senha"
           variant="filled"
-          onChange={(e) => setPassword(e.target.value)}
+          helperText={<ErrorMessage>{errors.password?.message}</ErrorMessage>}
           required
+          disabled={loading}
           fullWidth
         />
         <Box
@@ -69,8 +108,14 @@ const LoginForm = () => {
             width: "100%",
           }}
         >
-          <Button type="submit" variant="contained" size="large" fullWidth>
-            Entrar
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            fullWidth
+            disabled={loading}
+          >
+            {loading ? "Entrando..." : "Entrar"}
           </Button>
         </Box>
       </S.Form>

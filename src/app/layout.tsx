@@ -3,7 +3,6 @@ import { Poppins } from "next/font/google";
 import { Suspense } from "react";
 
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import Loading from "./loading";
 import ThemeProviderPage from "./theme-provider";

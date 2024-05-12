@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 
+import { useSession } from "next-auth/react";
 import * as S from "./styles";
 
 type Route = {
@@ -33,6 +34,7 @@ const routes: Routes = {
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { status } = useSession();
 
   const open = Boolean(anchorEl);
 
@@ -123,11 +125,6 @@ const Navbar = () => {
                   </Box>
                 ))}
               </Menu>
-              <Link href="/login">
-                <Button variant="text" color="inherit">
-                  Login
-                </Button>
-              </Link>
             </Box>
           </Toolbar>
         </AppBar>
