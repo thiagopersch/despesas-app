@@ -1,15 +1,15 @@
-import { ModalCustomizedProps } from "@/components/Modal";
-import ToastContent from "@/components/ToastContent";
-import { User, UserForm } from "@/model/User";
-import createApi from "@/services/api";
-import useMutation from "@/services/useMutation";
-import { Session } from "next-auth";
-import { RefObject, useCallback } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { ModalCustomizedProps } from '@/components/Modal';
+import ToastContent from '@/components/ToastContent';
+import { User, UserForm } from '@/model/User';
+import createApi from '@/services/api';
+import useMutation from '@/services/useMutation';
+import { Session } from 'next-auth';
+import { RefObject, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export function useAddUserMutation(
   modalRef: RefObject<ModalCustomizedProps>,
-  session?: Session | null
+  session?: Session | null,
 ) {
   const addUser = useCallback(
     async (values: UserForm) => {
@@ -19,14 +19,14 @@ export function useAddUserMutation(
 
       return id
         ? api.put(`/auth/update-user/${id}`, requestData)
-        : api.post("/auth/register", requestData);
+        : api.post('/auth/register', requestData);
     },
-    [session]
+    [session],
   );
 
-  return useMutation("add-user", addUser, {
+  return useMutation('add-user', addUser, {
     linkedQueries: {
-      "get-users": (old, newClient) => [
+      'get-users': (old, newClient) => [
         ...old,
         { ...newClient, id: uuidv4(), disabled: true },
       ],
@@ -49,14 +49,14 @@ export function useDeleteUserMutation(session?: Session | null) {
 
       return api.delete(`/users/${user.id}`);
     },
-    [session]
+    [session],
   );
 
-  return useMutation("delete-user", deleteUser, {
+  return useMutation('delete-user', deleteUser, {
     linkedQueries: {
-      "get-users": (old: User[], deletedUser: User) =>
+      'get-users': (old: User[], deletedUser: User) =>
         old.map((user) =>
-          user.id === deletedUser.id ? { ...user, disabled: true } : user
+          user.id === deletedUser.id ? { ...user, disabled: true } : user,
         ),
     },
     // onMutate: () => modalRef.current?.closeModal(),

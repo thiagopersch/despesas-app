@@ -1,53 +1,55 @@
-import axios from "axios";
-import NextAuth, { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import axios from 'axios';
+import NextAuth, { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 const nextAuthOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        login: { label: "login", type: "email" },
-        password: { label: "password", type: "password" },
+        login: { label: 'login', type: 'email' },
+        password: { label: 'password', type: 'password' },
       },
 
-      async authorize(credentials, req) {
+      async authorize(credentials: any) {
         try {
-          const response = await axios.post(
-            `${process.env.API_URL}/auth/sigin`,
-            {
-              login: credentials?.login,
-              password: credentials?.password,
-            },
-          );
-          console.log({ response });
+          const res = await axios.post(`${process.env.API_URL}/auth/signin`, {
+            email: credentials.email,
+            password: credentials.password,
+          });
 
-          if (response.status === 200) {
-            return response.data;
+          if (res.data.user) {
+            return res.data.user;
+          } else {
+            return null;
           }
         } catch (error) {
-          console.error("Error during authentication:", error);
+          console.error(error);
           return null;
         }
       },
     }),
   ],
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  useSecureCookies: true,
   callbacks: {
     async session({ session, token }) {
-      session.jwt = token.jwt;
       session.user.id = token.id;
-
       return session;
     },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
   },
+  secret: process.env.NEXTAUTH_SECRET,
+  useSecureCookies: false,
 };
 
 const handler = NextAuth(nextAuthOptions);

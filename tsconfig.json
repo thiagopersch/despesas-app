@@ -12,6 +12,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "newLine": "lf",
     "plugins": [
       {
         "name": "next"

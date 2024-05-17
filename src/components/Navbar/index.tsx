@@ -1,23 +1,27 @@
-"use client";
+'use client';
 
-import { dropdown } from "@/config/routes";
-import { Add } from "@mui/icons-material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { dropdown } from '@/config/routes';
+import { Add } from '@mui/icons-material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import {
   AppBar,
   Box,
   Button,
   Divider,
+  IconButton,
   Menu,
   MenuItem,
   Toolbar,
+  Tooltip,
   Typography,
-} from "@mui/material";
-import Link from "next/link";
-import { useState } from "react";
+} from '@mui/material';
+import Link from 'next/link';
+import { useState } from 'react';
 
-import { useSession } from "next-auth/react";
-import * as S from "./styles";
+import { signOut } from 'next-auth/react';
+import { useForm } from 'react-hook-form';
+import * as S from './styles';
 
 type Route = {
   path: string;
@@ -34,7 +38,7 @@ const routes: Routes = {
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { status } = useSession();
+  const { handleSubmit } = useForm();
 
   const open = Boolean(anchorEl);
 
@@ -44,6 +48,10 @@ const Navbar = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    const result = signOut({ callbackUrl: '/signIn' });
   };
 
   return (
@@ -59,8 +67,8 @@ const Navbar = () => {
 
             <Box
               sx={{
-                display: "flex",
-                gap: "2rem",
+                display: 'flex',
+                gap: '2rem',
               }}
             >
               <S.WrapperNavbar>
@@ -76,9 +84,9 @@ const Navbar = () => {
               </S.WrapperNavbar>
               <Button
                 id="menu"
-                aria-controls={open ? "basic-menu" : undefined}
+                aria-controls={open ? 'basic-menu' : undefined}
                 aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
+                aria-expanded={open ? 'true' : undefined}
                 onClick={handleClick}
                 variant="text"
                 color="inherit"
@@ -90,13 +98,13 @@ const Navbar = () => {
                 id="basic-menu"
                 anchorEl={anchorEl}
                 anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
+                  vertical: 'bottom',
+                  horizontal: 'right',
                 }}
                 open={open}
                 onClose={handleClose}
                 MenuListProps={{
-                  "aria-labelledby": "menu",
+                  'aria-labelledby': 'menu',
                 }}
               >
                 <S.WrapperIconNavbar>
@@ -126,6 +134,11 @@ const Navbar = () => {
                 ))}
               </Menu>
             </Box>
+            <Tooltip title="Sair" color="inherit">
+              <IconButton onClick={handleLogout}>
+                <PowerSettingsNewIcon />
+              </IconButton>
+            </Tooltip>
           </Toolbar>
         </AppBar>
       </Box>

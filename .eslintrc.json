@@ -1,4 +1,8 @@
 {
+  "env": {
+    "browser": true,
+    "node": true
+  },
   "extends": [
     "next",
     "next/core-web-vitals",
@@ -10,6 +14,9 @@
   "settings": {
     "babel": {
       "rootMode": "upward"
+    },
+    "react": {
+      "version": "detect"
     }
   },
   "rules": {

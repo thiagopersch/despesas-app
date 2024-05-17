@@ -4,7 +4,7 @@ const nextConfig = {
   swcMinify: true,
   reactStrictMode: true,
   experimental: { esmExternals: true },
-  output: "standalone",
+  output: 'standalone',
   compiler: {
     styledComponents: true,
   },
@@ -12,10 +12,11 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   env: {
-    customKey: "Despesas",
+    customKey: 'Despesas',
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_URL_INTERNAL: process.env.NEXTAUTH_URL_INTERNAL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_URL_INTERNAL,
+    DATABASE_URL: process.env.DATABASE_URL,
     API_URL: process.env.API_URL,
     SERVER_API_URL: process.env.SERVER_API_URL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,

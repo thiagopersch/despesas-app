@@ -1,5 +1,9 @@
-import Home from "@/templates/Home";
+import Base from "@/templates/Base";
 
-export default function HomePage() {
-  return <Home />;
+type IndexProps = {
+  children: React.ReactNode;
+};
+
+export default async function HomePage({ children }: IndexProps) {
+  return <Base>{children}</Base>;
 }
