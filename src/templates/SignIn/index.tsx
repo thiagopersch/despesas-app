@@ -34,8 +34,8 @@ export default function SignIn() {
     mode: 'all',
     resolver: zodResolver(schema),
     defaultValues: {
-      login: 'thiagopersch@gmail.com',
-      password: '321654869156',
+      login: '',
+      password: '',
     },
   });
 
