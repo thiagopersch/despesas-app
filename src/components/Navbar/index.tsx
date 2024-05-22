@@ -57,7 +57,7 @@ const Navbar = () => {
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="relative" color="primary">
+        <AppBar position="fixed" color="primary">
           <Toolbar>
             <Typography color="inherit" component="div" sx={{ flexGrow: 1 }}>
               <S.TitleWrapper>

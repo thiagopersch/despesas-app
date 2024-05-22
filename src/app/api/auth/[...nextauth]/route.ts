@@ -16,6 +16,7 @@ const nextAuthOptions: NextAuthOptions = {
           const res = await axios.post(`${process.env.API_URL}/auth/signin`, {
             email: credentials.email,
             password: credentials.password,
+            jwt: credentials.jwt,
           });
 
           if (res.data.user) {
@@ -38,7 +39,7 @@ const nextAuthOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      session.user.id = token.id;
+      session.token = token.id;
       return session;
     },
     async jwt({ token, user }) {

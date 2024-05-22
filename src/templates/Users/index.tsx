@@ -1,14 +1,13 @@
-"use client";
+'use client';
 
-import TableUsers from "@/components/TableUsers";
-import TitleDefault from "@/components/TitleDefault";
-import Base from "../Base";
+import TableUsers from '@/components/TableUsers';
+import TitleDefault from '@/components/TitleDefault';
 
 export default function Users() {
   return (
-    <Base>
+    <>
       <TitleDefault>Usuários</TitleDefault>
       <TableUsers />
-    </Base>
+    </>
   );
 }

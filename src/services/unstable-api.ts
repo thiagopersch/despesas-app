@@ -1,5 +1,6 @@
 import { SESSION_KEYS } from '@/requests/queries/session';
 import { isServer } from '@/utils/isServer';
+import { Session } from 'next-auth';
 import { getSession } from 'next-auth/react';
 import createApi from './api';
 import queryClient from './queryClient';
@@ -20,19 +21,20 @@ if (!isServer) {
       const newSession = await getSession();
       queryClient.setQueryData([SESSION_KEYS.all], newSession);
 
-      token = newSession?.jwt;
+      token = newSession?.token;
     }
 
-    const authorization = token ? `Bearer ${token}` : '';
-    config.headers.authorization = authorization;
+    const authorization = token ? `Bearer ${token}` : undefined;
+    config.headers.Authorization = authorization;
 
     return config;
   });
 }
 
-export const createUnstableApi = (session?: any) => {
-  const authorization = session?.token ? `Bearer ${session.token}` : '';
-  unstable__api.defaults.headers.authorization = authorization;
+export const createUnstableApi = (session?: Session | null) => {
+  const authorization = session?.token ? `Bearer ${session.token}` : undefined;
+  unstable__api.defaults.headers.head.Authorization = authorization;
+  //unstable__api.defaults.headers.authorization = authorization;
 
   return unstable__api;
 };

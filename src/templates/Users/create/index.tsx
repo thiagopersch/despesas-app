@@ -1,13 +1,17 @@
-"use client";
+'use client';
 
-import { ModalCustomizedProps } from "@/components/Modal";
-import { User } from "@/model/User";
-import { useAddUserMutation } from "@/requests/mutations/users";
-import Base from "@/templates/Base";
-import { Box, Button, TextField, Typography } from "@mui/material";
-import { useSession } from "next-auth/react";
-import { useCallback, useRef, useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import ErrorMessage from '@/components/ErrorMessage';
+import { useAddUserMutation } from '@/requests/mutations/users';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, CircularProgress, TextField, Typography } from '@mui/material';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { schema } from './schema';
+
+import * as S from './styles';
 
 type CreateUserProps = {
   name: string;
@@ -15,129 +19,126 @@ type CreateUserProps = {
   password: string;
 };
 
-const CreateUser = () => {
-  const [user, setUser] = useState<User>();
+type SchemaSignIn = z.infer<typeof schema>;
+
+export default function CreateUser() {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const {
     register,
-    control,
-    watch,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateUserProps>({
+  } = useForm<SchemaSignIn>({
+    criteriaMode: 'all',
+    mode: 'all',
+    resolver: zodResolver(schema),
     defaultValues: {
-      login: user?.login,
-      name: user?.name,
-      password: "12345678",
+      name: 'teste12',
+      login: 'teste12@gmail.com',
+      password: 'teste121',
     },
   });
-  const [status, setStatus] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const router = useRouter();
 
-  const modalRef = useRef<ModalCustomizedProps>(null);
+  const mutation = useAddUserMutation();
 
-  const { data: session } = useSession();
-  const mutation = useAddUserMutation(modalRef, session);
-
-  const onSubmit: SubmitHandler<CreateUserProps> = useCallback(
+  const handleSave: SubmitHandler<SchemaSignIn> = useCallback(
     async (values: CreateUserProps) => {
-      setSaving(true);
+      setLoading(true);
+      setErrorMessage(null);
+      try {
+        const response = await mutation.mutateAsync(values);
 
-      await mutation.mutateAsync({
-        id: user?.id,
-        login: values.login,
-        name: values.name,
-        password: values.password,
-      });
-
-      // refetchFn && refetchFn();
-
-      setSaving(false);
+        if (response.status === 201) {
+          setSuccess(true);
+          router.push('/users');
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          if (error.response.status === 400) {
+            setErrorMessage('Já existe um usuário com estes dados.');
+          } else {
+            setErrorMessage('Ocorreu algum erro ao tentar criar o usuário.');
+          }
+        } else {
+          setErrorMessage('Ocorreu um erro inesperado.');
+        }
+      } finally {
+        setLoading(false);
+      }
     },
-    [mutation, user, status, session],
+    [mutation, router],
   );
 
   return (
-    <Base>
-      <Box
+    <S.Wrapper>
+      <Typography
+        variant="h4"
+        color="primary"
         sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "5rem 30rem",
+          textAlign: 'center',
+          fontWeight: 'bold',
+          marginBottom: '1rem',
         }}
       >
-        <Typography
-          variant="h4"
-          color="primary"
-          sx={{
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
-          Criação de usuários
-        </Typography>
-      </Box>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            margin: "0 30rem",
-          }}
-        >
-          <Controller
-            name="name"
-            control={control}
-            defaultValue={user?.name ?? ""}
-            render={({ field }) => (
-              <TextField
-                id="nameUser"
-                type="text"
-                label="Nome"
-                {...field}
-                variant="filled"
-                required
-                fullWidth
-              />
-            )}
+        Criação de usuários
+      </Typography>
+      <form onSubmit={handleSubmit(handleSave)}>
+        <S.WrapperInputs>
+          <TextField
+            id="name"
+            type="text"
+            label="Nome"
+            {...register('name')}
+            aria-invalid={errors.login ? true : false}
+            helperText={<ErrorMessage>{errors.name?.message}</ErrorMessage>}
+            variant="filled"
+            disabled={loading}
+            required
+            fullWidth
+            autoFocus
           />
 
           <TextField
-            id="nameUser"
+            id="login"
             type="text"
-            label="Nome"
-            {...register("login")}
-            aria-invalid={errors.login ? "true" : "false"}
+            label="Login"
+            {...register('login')}
+            aria-invalid={errors.login ? true : false}
+            helperText={<ErrorMessage>{errors.login?.message}</ErrorMessage>}
             variant="filled"
+            disabled={loading}
             required
             fullWidth
           />
 
-          {/* <TextField
+          <TextField
+            id="password"
             type="text"
-            label="Login"
-            value={login}
-            onChange={(e) => setLogin(e.target.value)}
+            label="Senha"
+            {...register('password')}
+            aria-invalid={errors.password ? true : false}
+            helperText={<ErrorMessage>{errors.password?.message}</ErrorMessage>}
             variant="filled"
+            disabled={loading}
             required
             fullWidth
-          /> */}
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            margin: "2rem 30rem",
-          }}
-        >
-          <Button type="submit" variant="contained" size="large">
-            Cadastrar
-          </Button>
-        </Box>
+          />
+          {errorMessage && (
+            <Typography style={{ color: 'red' }}>{errorMessage}</Typography>
+          )}
+        </S.WrapperInputs>
+
+        <S.WrapperCTA>
+          {loading && <CircularProgress />}
+          {!loading && (
+            <Button type="submit" variant="contained" size="large" fullWidth>
+              Cadastrar
+            </Button>
+          )}
+        </S.WrapperCTA>
       </form>
-    </Base>
+    </S.Wrapper>
   );
-};
-export default CreateUser;
+}

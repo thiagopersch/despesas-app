@@ -1,10 +1,11 @@
 import {
+  MutationFunction,
   useQueryClient,
   useMutation as useReactQueryUseMutation,
-} from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { Flip, ToastContent, toast } from "react-toastify";
-import createApi from "./api";
+} from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { Flip, ToastContent, toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
 
 type ProcessQueryDataFn = (oldData: any, newData: any) => any;
 
@@ -13,22 +14,53 @@ type UseMutationOptions<TData = unknown, TError = unknown> = {
   renderLoading?: (data: any) => ToastContent;
   renderError?: (data: any, error: AxiosError<TError>) => ToastContent;
   renderSuccess?: (data: any) => ToastContent;
-  onMutate?: () => void | Promise<void>;
+  onMutate?: () => void;
 };
 
 const useMutation = <TData = string, TError = unknown>(
   key: string,
-  mutationFn: (variables: any) => Promise<TData>,
-  options: UseMutationOptions<TData, TError> = {}
+  mutationFn: MutationFunction<any, any>,
+  options: UseMutationOptions<TData, TError> = {},
 ) => {
-  const api = createApi();
   const queryClient = useQueryClient();
 
-  const mutation = useReactQueryUseMutation<TData, TError, any>({
+  return useReactQueryUseMutation({
     mutationKey: [key],
-    mutationFn: async (variables: any) => {
-      return mutationFn({ variables, api, queryClient });
+    mutationFn,
+    onMutate: async (data: any) => {
+      const toastKey = options.renderLoading ? `${key}-${uuidv4()}` : undefined;
+      if (toastKey && options.renderLoading) {
+        toast.info(options.renderLoading(data), {
+          position: 'top-right',
+          toastId: toastKey,
+          autoClose: 3000,
+          closeButton: true,
+          type: 'info',
+          theme: 'colored',
+        });
+      }
+      const previousQueriesData: Record<string, any> = {};
+      if (options.linkedQueries) {
+        const promises = Object.entries(options.linkedQueries).map(
+          async ([query, processQueryFn]) => {
+            await queryClient.cancelQueries({ queryKey: [query] });
+
+            const previousData = queryClient.getQueryData([query]);
+            queryClient.setQueryData([query], (old: any) =>
+              processQueryFn(old, data),
+            );
+
+            previousQueriesData[query] = previousData;
+          },
+        );
+        await Promise.all(promises);
+      }
+
+      options.onMutate && options.onMutate();
+
+      return { previousQueriesData, toastKey };
     },
+
     onError: (err: any, variables: any, context: any) => {
       const ctx = context || {};
       if (options.renderError) {
@@ -41,8 +73,9 @@ const useMutation = <TData = string, TError = unknown>(
         if (ctx.toastKey) {
           toast.update(ctx.toastKey, {
             ...toastObj,
-            type: "error",
+            type: 'error',
             transition: Flip,
+            theme: 'colored',
           });
         } else {
           toast(toastObj as unknown as ToastContent);
@@ -52,7 +85,7 @@ const useMutation = <TData = string, TError = unknown>(
       }
 
       Object.entries(ctx.previousQueriesData || {}).forEach(
-        ([key, value]: [string, any]) => queryClient.setQueryData([key], value)
+        ([key, value]: [string, any]) => queryClient.setQueryData([key], value),
       );
     },
     onSuccess: (data: any, variables: any, context: any) => {
@@ -63,30 +96,29 @@ const useMutation = <TData = string, TError = unknown>(
           autoClose: 3000,
         };
 
-        if (context.toastKey) {
+        if (context?.toastKey) {
           toast.update(context.toastKey, {
             ...toastObj,
-            type: "success",
+            type: 'success',
             transition: Flip,
+            theme: 'colored',
           });
         } else {
           toast(toastObj as unknown as ToastContent);
         }
-      } else if (context.toastKey) {
+      } else if (context?.toastKey) {
         toast.dismiss(context.toastKey);
       }
     },
     onSettled: () => {
       if (options.linkedQueries) {
         Object.keys(options.linkedQueries).forEach((query) =>
-          queryClient.invalidateQueries({ queryKey: [query] })
+          queryClient.invalidateQueries({ queryKey: [query] }),
         );
       }
     },
     ...options,
   });
-
-  return mutation;
 };
 
 export default useMutation;

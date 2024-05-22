@@ -1,11 +1,16 @@
-"use client";
+'use client';
 
-import AddIcon from "@mui/icons-material/Add";
-import CancelIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import Button from "@mui/material/Button";
+import { FormattedUsers, User } from '@/model/User';
+import {
+  useAddUserMutation,
+  useDeleteUserMutation,
+} from '@/requests/mutations/users';
+import { listUsers } from '@/requests/queries/users';
+import CancelIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import { Button, Tooltip } from '@mui/material';
 import {
   DataGrid,
   GridActionsCellItem,
@@ -13,87 +18,52 @@ import {
   GridEventListener,
   GridRowEditStopReasons,
   GridRowId,
-  GridRowModel,
   GridRowModes,
   GridRowModesModel,
-  GridRowsProp,
-  GridSlots,
-  GridToolbarContainer,
-} from "@mui/x-data-grid";
-import {
-  randomCreatedDate,
-  randomId,
-  randomTraderName,
-  randomUpdatedDate,
-} from "@mui/x-data-grid-generator";
-import * as React from "react";
-import ContainerTable from "../ContainerTable";
+} from '@mui/x-data-grid';
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import * as React from 'react';
+import ContainerTable from '../ContainerTable';
+import NoRow from '../Table/NoRow';
 
-const initialRows: GridRowsProp = [
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    created: randomCreatedDate(),
-    updated: randomUpdatedDate(),
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    created: randomCreatedDate(),
-    updated: randomUpdatedDate(),
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    created: randomCreatedDate(),
-    updated: randomUpdatedDate(),
-  },
-];
+import * as S from './styles';
 
-interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
-  setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
-  ) => void;
-}
+type UserFormData = {
+  name: string;
+  login: string;
+};
 
-function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props;
-
-  const handleClick = () => {
-    const id = randomId();
-    setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
-    }));
-  };
-
-  return (
-    <GridToolbarContainer
-      sx={{ display: "flex", margin: "1rem", justifyContent: "flex-end" }}
-    >
-      <Button
-        variant="contained"
-        color="success"
-        startIcon={<AddIcon />}
-        onClick={handleClick}
-      >
-        Adicionar
-      </Button>
-    </GridToolbarContainer>
-  );
-}
-
-export default function TableUsers() {
-  const [rows, setRows] = React.useState(initialRows);
+const TableUsers = () => {
+  const [user, setUser] = React.useState<User>();
+  const [rows, setRows] = React.useState<FormattedUsers[]>([]);
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {}
+    {},
   );
 
-  const handleRowEditStop: GridEventListener<"rowEditStop"> = (
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useQuery<FormattedUsers[]>({
+    queryKey: ['get-users'],
+    queryFn: () => listUsers(),
+  });
+
+  React.useEffect(() => {
+    if (users) {
+      setRows(users);
+    }
+  }, [users]);
+  const { data: session } = useSession();
+
+  const mutation = useAddUserMutation();
+  const { mutate: deleteUser } = useDeleteUserMutation();
+
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
     params,
-    event
+    event,
   ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
@@ -104,28 +74,47 @@ export default function TableUsers() {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  const handleSaveClick = (id: GridRowId) => async () => {
+    const editedRow = rows.find((row) => row.id === id);
+    if (editedRow) {
+      try {
+        mutation.mutate(
+          {
+            name: editedRow.name,
+            login: editedRow.login,
+          },
+          {
+            onSuccess() {},
+          },
+        );
+        setRowModesModel({
+          ...rowModesModel,
+          [id]: { mode: GridRowModes.View },
+        });
+      } catch (error) {
+        console.error('Error saving user:', error);
+      }
+    }
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row) => row.id !== id));
+    deleteUser(id, {
+      onSuccess: () => {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+      },
+    });
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
+    setUser(undefined);
     setRowModesModel({
       ...rowModesModel,
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
     });
-
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
-    }
   };
 
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
+  const processRowUpdate = (newRow: FormattedUsers) => {
+    const updatedRow = { ...newRow, status: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
   };
@@ -135,84 +124,114 @@ export default function TableUsers() {
   };
 
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Nome", width: 200, editable: true },
+    { field: 'name', headerName: 'Nome', width: 200, editable: true },
+    { field: 'login', headerName: 'Login', width: 300, editable: true },
+
     {
-      field: "created",
-      headerName: "Criado em",
-      type: "dateTime",
+      field: 'formattedCreatedAt',
+      headerName: 'Criado em',
+      type: 'string',
       width: 230,
       editable: false,
     },
     {
-      field: "updated",
-      headerName: "Atualizado em",
-      type: "dateTime",
+      field: 'formattedUpdatedAt',
+      headerName: 'Atualizado em',
+      type: 'string',
       width: 230,
       editable: false,
     },
     {
-      field: "actions",
-      type: "actions",
-      headerName: "Ações",
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Ações',
       width: 230,
-      cellClassName: "actions",
+      cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
         if (isInEditMode) {
           return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Salvar"
-              color="primary"
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancelar"
-              onClick={handleCancelClick(id)}
-              color="error"
-            />,
+            <Tooltip title="Salvar" key="save">
+              <GridActionsCellItem
+                icon={<SaveIcon />}
+                label="Salvar"
+                color="primary"
+                onClick={handleSaveClick(id)}
+              />
+            </Tooltip>,
+            <Tooltip title="Cancelar" key="cancel">
+              <GridActionsCellItem
+                icon={<CancelIcon />}
+                label="Cancelar"
+                onClick={handleCancelClick(id)}
+                color="warning"
+              />
+            </Tooltip>,
           ];
         }
 
         return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            onClick={handleEditClick(id)}
-            color="primary"
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="error"
-          />,
+          <Tooltip title="Editar" key="edit">
+            <GridActionsCellItem
+              icon={<EditIcon />}
+              label="Edit"
+              onClick={handleEditClick(id)}
+              color="primary"
+            />
+          </Tooltip>,
+          <Tooltip title="Deletar" key="delete">
+            <GridActionsCellItem
+              icon={<DeleteIcon />}
+              label="Delete"
+              onClick={handleDeleteClick(id)}
+              color="error"
+            />
+          </Tooltip>,
         ];
       },
     },
   ];
 
+  if (isError) {
+    return <div>Error loading data...</div>;
+  }
+
   return (
     <ContainerTable>
+      <Link href="/users/create">
+        <S.CTA>
+          <Button variant="contained" color="success" size="large">
+            Cadastrar
+          </Button>
+        </S.CTA>
+      </Link>
       <DataGrid
         rows={rows}
         columns={columns}
-        editMode="cell"
         rowModesModel={rowModesModel}
         onRowModesModelChange={handleRowModesModelChange}
         onRowEditStop={handleRowEditStop}
         processRowUpdate={processRowUpdate}
+        loading={isLoading}
         checkboxSelection
         autoHeight
+        initialState={{
+          pagination: {
+            paginationModel: { page: 0, pageSize: 10 },
+          },
+        }}
+        pageSizeOptions={[10, 50, 100]}
         slots={{
-          toolbar: EditToolbar as GridSlots["toolbar"],
+          noRowsOverlay: NoRow,
         }}
         slotProps={{
           toolbar: { setRows, setRowModesModel },
         }}
+        sx={{ '--DataGrid-overlayHeight': '18.75rem' }}
       />
     </ContainerTable>
   );
-}
+};
+
+export default TableUsers;

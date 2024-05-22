@@ -7,10 +7,12 @@ type ListUsersFilters = {
   id?: string;
   name?: string;
   status?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
-export const listClients = async (
-  session?: Session | null,
+export const listUsers = async (
+  session?: Session | undefined,
   filters: ListUsersFilters = {},
 ): Promise<FormattedUsers[]> => {
   const api = createApi(session);
@@ -19,6 +21,6 @@ export const listClients = async (
 
   const params = { ...restParams } as any;
 
-  const response = await api.get<User[]>('/auth/users', { params });
+  const response = await api.get<User[]>('/users', { params });
   return response.data.map(userMapper);
 };

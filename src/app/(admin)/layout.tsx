@@ -1,6 +1,6 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { nextAuthOptions } from "../api/auth/[...nextauth]/route";
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { nextAuthOptions } from '../api/auth/[...nextauth]/route';
 
 type PrivateLayoutProps = {
   children: React.ReactNode;
@@ -8,10 +8,8 @@ type PrivateLayoutProps = {
 export default async function PrivateLayout({ children }: PrivateLayoutProps) {
   const session = await getServerSession(nextAuthOptions);
 
-  console.log(session);
-
   if (!session) {
-    redirect("/signIn");
+    redirect('/signIn');
   }
   return <>{children}</>;
 }

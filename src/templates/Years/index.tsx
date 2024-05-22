@@ -1,14 +1,13 @@
-"use client";
+'use client';
 
-import TableYear from "@/components/TableYear";
-import TitleDefault from "@/components/TitleDefault";
-import Base from "../Base";
+import TableYear from '@/components/TableYear';
+import TitleDefault from '@/components/TitleDefault';
 
 export default function Years() {
   return (
-    <Base>
+    <>
       <TitleDefault>Ano</TitleDefault>
       <TableYear />
-    </Base>
+    </>
   );
 }

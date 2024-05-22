@@ -3,6 +3,9 @@ import { Poppins } from 'next/font/google';
 import { Suspense } from 'react';
 
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import Base from '@/templates/Base';
 import './globals.css';
 import Loading from './loading';
 import ThemeProviderPage from './theme-provider';
@@ -24,8 +27,10 @@ export default function RootLayout({
       <body className={poppins.className}>
         <Suspense fallback={<Loading />}>
           <ThemeProviderPage>
-            {children}
-            <ToastContainer />
+            <Base>
+              {children}
+              <ToastContainer />
+            </Base>
           </ThemeProviderPage>
         </Suspense>
       </body>

@@ -23,7 +23,6 @@ type SchemaSignIn = z.infer<typeof schema>;
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<number>();
-  const { push } = useRouter();
   const router = useRouter();
   const {
     register,
@@ -49,13 +48,12 @@ export default function SignIn() {
           password: values.password,
         });
         if (result?.error) {
-          console.log(result);
           setError(result?.status);
         } else {
           router.push('/dashboard');
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       } finally {
         setLoading(false);
       }

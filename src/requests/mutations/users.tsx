@@ -1,16 +1,12 @@
-import { ModalCustomizedProps } from '@/components/Modal';
 import ToastContent from '@/components/ToastContent';
 import { User, UserForm } from '@/model/User';
 import createApi from '@/services/api';
 import useMutation from '@/services/useMutation';
 import { Session } from 'next-auth';
-import { RefObject, useCallback } from 'react';
+import { useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-export function useAddUserMutation(
-  modalRef: RefObject<ModalCustomizedProps>,
-  session?: Session | null,
-) {
+export function useAddUserMutation(session?: Session | null) {
   const addUser = useCallback(
     async (values: UserForm) => {
       const api = createApi(session);
@@ -18,35 +14,35 @@ export function useAddUserMutation(
       const { id, ...requestData } = values;
 
       return id
-        ? api.put(`/auth/update-user/${id}`, requestData)
-        : api.post('/auth/register', requestData);
+        ? api.put(`/users/${id}`, requestData)
+        : api.post('/users/create', requestData);
     },
     [session],
   );
 
   return useMutation('add-user', addUser, {
     linkedQueries: {
-      'get-users': (old, newClient) => [
+      'get-users': (old, newUser: UserForm) => [
         ...old,
-        { ...newClient, id: uuidv4(), disabled: true },
+        { ...newUser, id: uuidv4(), disabled: true },
       ],
     },
-    onMutate: () => modalRef.current?.onClose(),
-    renderLoading: function render() {
+    renderLoading: function render(newUser: UserForm) {
       return (
-        <ToastContent showSpinner>Salvando as informações...</ToastContent>
+        <ToastContent showSpinner>
+          Salvando usuário {newUser.name}...
+        </ToastContent>
       );
     },
-    renderError: () => `Falha ao criar registro!`,
-    renderSuccess: () => `Criado com sucesso!`,
+    renderError: () => 'Falha ao inserir usuário',
+    renderSuccess: () => `Usuário inserido com sucesso`,
   });
 }
 
-export function useDeleteUserMutation(session?: Session | null) {
+export function useDeleteUserMutation(session?: Session) {
   const deleteUser = useCallback(
-    async (user: any) => {
+    async (user: User) => {
       const api = createApi(session);
-
       return api.delete(`/users/${user.id}`);
     },
     [session],
@@ -54,20 +50,17 @@ export function useDeleteUserMutation(session?: Session | null) {
 
   return useMutation('delete-user', deleteUser, {
     linkedQueries: {
-      'get-users': (old: User[], deletedUser: User) =>
-        old.map((user) =>
+      'delete-user': (oldUsers: User[], deletedUser: User) =>
+        oldUsers.map((user) =>
           user.id === deletedUser.id ? { ...user, disabled: true } : user,
         ),
     },
-    // onMutate: () => modalRef.current?.closeModal(),
-    renderLoading: function render(deletedUser) {
-      return (
-        <ToastContent showSpinner>
-          Removendo o usário: ${deletedUser.name}...
-        </ToastContent>
-      );
-    },
-    renderError: () => `Falha ao remover o registro`,
-    renderSuccess: () => `Deletado com sucesso...`,
+    renderLoading: (deletedUser: User) => (
+      <ToastContent showSpinner>
+        Removendo o usuário: {deletedUser.name}...
+      </ToastContent>
+    ),
+    renderError: () => 'Falha ao remover o registro!',
+    renderSuccess: () => 'Deletado com sucesso!',
   });
 }

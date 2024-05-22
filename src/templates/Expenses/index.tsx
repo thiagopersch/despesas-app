@@ -1,14 +1,13 @@
-"use client";
+'use client';
 
-import TableExpenses from "@/components/TableExpenses";
-import TitleDefault from "@/components/TitleDefault";
-import Base from "../Base";
+import TableExpenses from '@/components/TableExpenses';
+import TitleDefault from '@/components/TitleDefault';
 
 export default function Expenses() {
   return (
-    <Base>
+    <>
       <TitleDefault>Despesas</TitleDefault>
       <TableExpenses />
-    </Base>
+    </>
   );
 }

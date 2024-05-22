@@ -3,18 +3,15 @@ import axios from 'axios';
 import { Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
 
-const createApi = (session?: Session) => {
-  const jwt = session?.jwt;
-  console.log(jwt);
+const createApi = (session?: Session | null) => {
+  const jwt = session?.token;
   const api = axios.create({
     baseURL:
-      isServer && process.env.APP_ENV === 'prod'
+      isServer && process.env.APP_ENV === 'production'
         ? process.env.SERVER_API_URL
         : process.env.NEXT_PUBLIC_API_URL,
     headers: {
-      authorization: jwt ? `Bearer ${jwt}` : '',
-      'Content-Type': 'application/json',
-      Accept: 'application/json, text/plain, */*',
+      authorization: jwt ? `Bearer ${jwt}` : undefined,
     },
   });
 

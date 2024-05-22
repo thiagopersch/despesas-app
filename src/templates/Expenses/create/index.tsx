@@ -1,11 +1,6 @@
-import FormCreate from "@/components/Expenses/FormCreate";
-import Base from "@/templates/Base";
+import FormCreate from '@/components/Expenses/FormCreate';
 
 const CreateExpenses = () => {
-  return (
-    <Base>
-      <FormCreate />
-    </Base>
-  );
+  return <FormCreate />;
 };
 export default CreateExpenses;

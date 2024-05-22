@@ -1,14 +1,13 @@
-"use client";
+'use client';
 
-import TablePriority from "@/components/TablePriority";
-import TitleDefault from "@/components/TitleDefault";
-import Base from "../Base";
+import TablePriority from '@/components/TablePriority';
+import TitleDefault from '@/components/TitleDefault';
 
 export default function Priority() {
   return (
-    <Base>
+    <>
       <TitleDefault>Prioridade</TitleDefault>
       <TablePriority />
-    </Base>
+    </>
   );
 }
