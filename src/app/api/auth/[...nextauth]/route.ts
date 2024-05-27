@@ -14,7 +14,7 @@ const nextAuthOptions: NextAuthOptions = {
       async authorize(credentials: any) {
         try {
           const res = await axios.post(`${process.env.API_URL}/auth/signin`, {
-            email: credentials.email,
+            login: credentials.login,
             password: credentials.password,
             jwt: credentials.jwt,
           });

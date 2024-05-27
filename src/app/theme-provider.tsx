@@ -1,19 +1,20 @@
-"use client";
+'use client';
 
-import { ThemeProvider } from "@mui/material";
-import { ThemeProvider as ThemeProviderStyled } from "styled-components";
+import { ThemeProvider } from '@mui/material';
+import { ThemeProvider as ThemeProviderStyled } from 'styled-components';
 
-import theme from "@/styles/theme";
-import themeStyled from "@/styles/themeStyled";
+import theme from '@/styles/theme';
+import themeStyled from '@/styles/themeStyled';
 import {
   HydrationBoundary,
   QueryClient,
   QueryClientProvider,
   hydrate,
-} from "@tanstack/react-query";
-import { ReactNode } from "react";
+} from '@tanstack/react-query';
+import { ReactNode } from 'react';
 
-import NextAuthSessionProvider from "@/providers/sessionProvider";
+import NextAuthSessionProvider from '@/providers/sessionProvider';
+import Base from '@/templates/Base';
 
 type ThemeProviderPageProps = {
   children: ReactNode;
@@ -30,7 +31,7 @@ export default function ThemeProviderPage({
         <HydrationBoundary state={hydrate}>
           <ThemeProvider theme={theme}>
             <ThemeProviderStyled theme={themeStyled}>
-              {children}
+              <Base>{children}</Base>
             </ThemeProviderStyled>
           </ThemeProvider>
         </HydrationBoundary>

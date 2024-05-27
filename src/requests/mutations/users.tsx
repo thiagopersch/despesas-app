@@ -10,22 +10,48 @@ export function useAddUserMutation(session?: Session | null) {
   const addUser = useCallback(
     async (values: UserForm) => {
       const api = createApi(session);
+      const requestData = { ...values, id: values.id ? values.id : undefined };
 
-      const { id, ...requestData } = values;
+      console.log({ requestData });
 
-      return id
-        ? api.put(`/users/${id}`, requestData)
-        : api.post('/users/create', requestData);
+      if (!requestData.id) {
+        console.log('caiu no create');
+        return api.post('/users/create', requestData);
+      } else {
+        console.log('caiu no update');
+        return api.patch(`/users/${requestData.id}`, requestData);
+      }
     },
     [session],
   );
 
   return useMutation('add-user', addUser, {
     linkedQueries: {
-      'get-users': (old, newUser: UserForm) => [
-        ...old,
-        { ...newUser, id: uuidv4(), disabled: true },
-      ],
+      'get-users': (
+        old: { users: UserForm[] } | undefined,
+        newUser: UserForm,
+      ) => {
+        if (!old || !old.users) {
+          return [{ ...newUser, id: uuidv4(), disabled: true }];
+        }
+
+        const existingUserIndex = old.users.findIndex(
+          (user) => user.id === newUser.id,
+        );
+
+        if (existingUserIndex > -1) {
+          const updatedUsers = [...old.users];
+          updatedUsers[existingUserIndex] = {
+            ...newUser,
+            id: old.users[existingUserIndex].id,
+          };
+          return { users: updatedUsers };
+        } else {
+          return {
+            users: [...old.users, { ...newUser, id: uuidv4(), disabled: true }],
+          };
+        }
+      },
     },
     renderLoading: function render(newUser: UserForm) {
       return (
@@ -39,7 +65,7 @@ export function useAddUserMutation(session?: Session | null) {
   });
 }
 
-export function useDeleteUserMutation(session?: Session) {
+export function useDeleteUserMutation(session?: Session | null) {
   const deleteUser = useCallback(
     async (user: User) => {
       const api = createApi(session);
@@ -50,8 +76,8 @@ export function useDeleteUserMutation(session?: Session) {
 
   return useMutation('delete-user', deleteUser, {
     linkedQueries: {
-      'delete-user': (oldUsers: User[], deletedUser: User) =>
-        oldUsers.map((user) =>
+      'delete-user': (oldUsers: User[] | undefined, deletedUser: User) =>
+        oldUsers?.map((user) =>
           user.id === deletedUser.id ? { ...user, disabled: true } : user,
         ),
     },

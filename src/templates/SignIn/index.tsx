@@ -50,7 +50,7 @@ export default function SignIn() {
         if (result?.error) {
           setError(result?.status);
         } else {
-          router.push('/dashboard');
+          router.push('/');
         }
       } catch (err) {
         console.error(err);

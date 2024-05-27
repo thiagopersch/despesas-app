@@ -1,7 +1,9 @@
+import Dashboard from '@/templates/Dashboard';
+
 type IndexProps = {
   children: React.ReactNode;
 };
 
-export default async function HomePage({ children }: IndexProps) {
-  return <>{children}</>;
+export default function HomePage({ children }: IndexProps) {
+  return <Dashboard />;
 }

@@ -34,9 +34,9 @@ export default function CreateUser() {
     mode: 'all',
     resolver: zodResolver(schema),
     defaultValues: {
-      name: 'teste12',
-      login: 'teste12@gmail.com',
-      password: 'teste121',
+      name: '',
+      login: '',
+      password: '',
     },
   });
   const router = useRouter();
