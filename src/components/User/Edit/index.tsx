@@ -71,6 +71,7 @@ const EditUserModal = ({
       await mutation.mutateAsync({ ...values, id });
       handleSave && handleSave(values);
       handleClose && handleClose();
+      router.refresh();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         if (error.response.status === 400) {
@@ -82,7 +83,7 @@ const EditUserModal = ({
         setErrorMessage('Algo deu errado!');
       }
     } finally {
-      router.refresh;
+      router.refresh();
     }
   };
 

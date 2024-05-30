@@ -1,7 +1,6 @@
 'use client';
 
 import { FormattedUsers, User } from '@/model/User';
-import { useDeleteUserMutation } from '@/requests/mutations/users';
 import { listUsers } from '@/requests/queries/users';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
@@ -10,8 +9,6 @@ import {
   DataGrid,
   GridActionsCellItem,
   GridColDef,
-  GridEventListener,
-  GridRowEditStopReasons,
   GridRowId,
   GridRowModesModel,
 } from '@mui/x-data-grid';
@@ -21,6 +18,7 @@ import Link from 'next/link';
 import * as React from 'react';
 import ContainerTable from '../ContainerTable';
 
+import { useDeleteUserWithConfirmation } from '@/hooks/useDeleteUserWithConfirmation';
 import { useRouter } from 'next/navigation';
 import NoRow from '../Table/NoRow';
 import EditUserModal from '../User/Edit';
@@ -51,17 +49,9 @@ const TableUsers = () => {
 
   const { data: session } = useSession();
 
-  const deleteUser = useDeleteUserMutation(session);
+  const { confirmDelete, renderDeletePopup } =
+    useDeleteUserWithConfirmation(session);
   const router = useRouter();
-
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
-    params,
-    event,
-  ) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
-    }
-  };
 
   const handleSaveClick = (id: GridRowId) => async () => {
     const userToEdit = rows.find((row) => row.id === id);
@@ -74,39 +64,21 @@ const TableUsers = () => {
   const handleDeleteClick = (id: GridRowId) => async () => {
     try {
       const userToDelete = rows.find((row) => row.id === id);
-
       if (userToDelete) {
-        await deleteUser.mutateAsync(userToDelete, {
-          onSuccess: () => {
-            setRows((oldUsers) =>
-              oldUsers.map((user) =>
-                user.id === userToDelete.id
-                  ? { ...user, disabled: true }
-                  : user,
-              ),
-            );
-          },
-        });
+        confirmDelete(userToDelete);
+        const updatedRows = rows.filter((row) => row.id !== id);
+        setRows(updatedRows);
       }
-      router.refresh;
     } catch (error) {
       console.error(error);
+    } finally {
+      router.refresh();
     }
   };
 
-  const processRowUpdate = (newRow: FormattedUsers) => {
-    const updatedRow = { ...newRow, status: false };
-    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    return updatedRow;
-  };
-
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
-
   const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Nome', width: 350, editable: true },
-    { field: 'login', headerName: 'Login', width: 350, editable: true },
+    { field: 'name', headerName: 'Nome', width: 350, editable: false },
+    { field: 'login', headerName: 'Login', width: 350, editable: false },
 
     {
       field: 'formattedCreatedAt',
@@ -169,9 +141,6 @@ const TableUsers = () => {
           rows={rows}
           columns={columns}
           rowModesModel={rowModesModel}
-          onRowModesModelChange={handleRowModesModelChange}
-          onRowEditStop={handleRowEditStop}
-          processRowUpdate={processRowUpdate}
           loading={isLoading}
           checkboxSelection
           autoHeight
@@ -193,6 +162,7 @@ const TableUsers = () => {
           sx={{ '--DataGrid-overlayHeight': '18.75rem' }}
         />
       </ContainerTable>
+
       {openPopup && (
         <EditUserModal
           handleClose={() => setOpenPopup(false)}
@@ -200,6 +170,8 @@ const TableUsers = () => {
           id={userToEdit?.id}
         />
       )}
+
+      {renderDeletePopup()}
     </>
   );
 };

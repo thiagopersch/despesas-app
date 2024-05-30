@@ -12,13 +12,9 @@ export function useAddUserMutation(session?: Session | null) {
       const api = createApi(session);
       const requestData = { ...values, id: values.id ? values.id : undefined };
 
-      console.log({ requestData });
-
       if (!requestData.id) {
-        console.log('caiu no create');
         return api.post('/users/create', requestData);
       } else {
-        console.log('caiu no update');
         return api.patch(`/users/${requestData.id}`, requestData);
       }
     },
@@ -76,7 +72,7 @@ export function useDeleteUserMutation(session?: Session | null) {
 
   return useMutation('delete-user', deleteUser, {
     linkedQueries: {
-      'delete-user': (oldUsers: User[] | undefined, deletedUser: User) =>
+      'get-users': (oldUsers: User[], deletedUser: User) =>
         oldUsers?.map((user) =>
           user.id === deletedUser.id ? { ...user, disabled: true } : user,
         ),
@@ -87,6 +83,6 @@ export function useDeleteUserMutation(session?: Session | null) {
       </ToastContent>
     ),
     renderError: () => 'Falha ao remover o registro!',
-    renderSuccess: () => 'Deletado com sucesso!',
+    renderSuccess: () => `Deletado o usuário com sucesso!`,
   });
 }

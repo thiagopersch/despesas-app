@@ -110,6 +110,7 @@ const useMutation = <TData = string, TError = unknown>(
         toast.dismiss(context.toastKey);
       }
     },
+
     onSettled: () => {
       if (options.linkedQueries) {
         Object.keys(options.linkedQueries).forEach((query) =>
