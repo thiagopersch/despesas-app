@@ -71,6 +71,10 @@ export default function CreateUser() {
     [mutation, router],
   );
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <S.Wrapper>
       <Typography
@@ -133,9 +137,21 @@ export default function CreateUser() {
         <S.WrapperCTA>
           {loading && <CircularProgress />}
           {!loading && (
-            <Button type="submit" variant="contained" size="large" fullWidth>
-              Cadastrar
-            </Button>
+            <>
+              <Button
+                type="reset"
+                variant="outlined"
+                size="large"
+                color="inherit"
+                onClick={handleBack}
+                fullWidth
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" variant="contained" size="large" fullWidth>
+                Cadastrar
+              </Button>
+            </>
           )}
         </S.WrapperCTA>
       </form>

@@ -23,7 +23,8 @@ export const WrapperInputs = styled.div`
 
 export const WrapperCTA = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 1rem;
   padding: 0.5vw 20vw;
 
   ${media.lessThan('medium')`

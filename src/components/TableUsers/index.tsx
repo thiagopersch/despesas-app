@@ -130,13 +130,13 @@ const TableUsers = () => {
   return (
     <>
       <ContainerTable>
-        <Link href="/users/create">
-          <S.CTA>
+        <S.CTA>
+          <Link href="/users/create">
             <Button variant="contained" color="success" size="large">
               Cadastrar
             </Button>
-          </S.CTA>
-        </Link>
+          </Link>
+        </S.CTA>
         <DataGrid
           rows={rows}
           columns={columns}
