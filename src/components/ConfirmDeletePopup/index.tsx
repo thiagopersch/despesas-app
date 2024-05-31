@@ -7,7 +7,7 @@ type ConfirmDeletePopupProps = {
   onClose?: () => void;
   onConfirm?: (param: any) => void;
   message?: ReactNode;
-  user?: any;
+  obj?: any;
 };
 
 const ConfirmDeletePopup = ({

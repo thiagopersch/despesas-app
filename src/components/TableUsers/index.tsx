@@ -20,9 +20,9 @@ import ContainerTable from '../ContainerTable';
 
 import { useDeleteUserWithConfirmation } from '@/hooks/useDeleteUserWithConfirmation';
 import { useRouter } from 'next/navigation';
+import CTA from '../CTA';
 import NoRow from '../Table/NoRow';
 import EditUserModal from '../User/Edit';
-import * as S from './styles';
 
 const TableUsers = () => {
   const [rows, setRows] = React.useState<FormattedUsers[]>([]);
@@ -130,13 +130,13 @@ const TableUsers = () => {
   return (
     <>
       <ContainerTable>
-        <S.CTA>
+        <CTA>
           <Link href="/users/create">
             <Button variant="contained" color="success" size="large">
               Cadastrar
             </Button>
           </Link>
-        </S.CTA>
+        </CTA>
         <DataGrid
           rows={rows}
           columns={columns}

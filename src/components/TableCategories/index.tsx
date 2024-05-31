@@ -1,33 +1,38 @@
-"use client";
+'use client';
 
-import AddIcon from "@mui/icons-material/Add";
-import CancelIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import Button from "@mui/material/Button";
+import { useDeleteCategoryWithConfirmation } from '@/hooks/useDeleteCategoryWithConfirmation';
+import { Category, FormattedCategory } from '@/model/Category';
+import { listcategories } from '@/requests/queries/categories';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import EditIcon from '@mui/icons-material/Edit';
+import { Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
 import {
   DataGrid,
   GridActionsCellItem,
   GridColDef,
-  GridEventListener,
-  GridRowEditStopReasons,
   GridRowId,
-  GridRowModel,
   GridRowModes,
   GridRowModesModel,
   GridRowsProp,
-  GridSlots,
   GridToolbarContainer,
-} from "@mui/x-data-grid";
+} from '@mui/x-data-grid';
 import {
   randomCreatedDate,
   randomId,
   randomTraderName,
   randomUpdatedDate,
-} from "@mui/x-data-grid-generator";
-import * as React from "react";
-import ContainerTable from "../ContainerTable";
+} from '@mui/x-data-grid-generator';
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
+import CTA from '../CTA';
+import EditCategoryModal from '../Category';
+import ContainerTable from '../ContainerTable';
+import NoRow from '../Table/NoRow';
 
 const initialRows: GridRowsProp = [
   {
@@ -53,7 +58,7 @@ const initialRows: GridRowsProp = [
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
   setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
+    newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
   ) => void;
 }
 
@@ -62,16 +67,16 @@ function EditToolbar(props: EditToolbarProps) {
 
   const handleClick = () => {
     const id = randomId();
-    setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
+    setRows((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
     setRowModesModel((oldModel) => ({
       ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
     }));
   };
 
   return (
     <GridToolbarContainer
-      sx={{ display: "flex", margin: "1rem", justifyContent: "flex-end" }}
+      sx={{ display: 'flex', margin: '1rem', justifyContent: 'flex-end' }}
     >
       <Button
         variant="contained"
@@ -85,24 +90,33 @@ function EditToolbar(props: EditToolbarProps) {
   );
 }
 
-export default function TableCategories() {
-  const [rows, setRows] = React.useState(initialRows);
+const TableCategories = () => {
+  const [rows, setRows] = React.useState<FormattedCategory[]>([]);
+  const [openPopup, setOpenPopup] = React.useState(false);
+  const [categoryToEdit, setCategoryToEdit] = React.useState<Category>();
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {}
+    {},
   );
 
-  const handleRowEditStop: GridEventListener<"rowEditStop"> = (
-    params,
-    event
-  ) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
-    }
-  };
+  const {
+    data: categories,
+    isError,
+    isLoading,
+  } = useQuery<FormattedCategory[]>({
+    queryKey: ['get-categories'],
+    queryFn: () => listcategories(),
+  });
 
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
+  React.useEffect(() => {
+    if (categories) {
+      setRows(categories);
+    }
+  }, [categories]);
+
+  const { data: session } = useSession();
+  const { confirmDelete, renderDeletePopup } =
+    useDeleteCategoryWithConfirmation(session);
+  const router = useRouter();
 
   const handleSaveClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
@@ -112,107 +126,102 @@ export default function TableCategories() {
     setRows(rows.filter((row) => row.id !== id));
   };
 
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
-    }
-  };
-
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
-    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    return updatedRow;
-  };
-
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
-
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Nome", width: 200, editable: true },
+    { field: 'image', headerName: 'Imagem', width: 200, editable: false },
+    { field: 'name', headerName: 'Nome', width: 350, editable: false },
     {
-      field: "created",
-      headerName: "Criado em",
-      type: "dateTime",
-      width: 230,
+      field: 'created',
+      headerName: 'Criado em',
+      type: 'dateTime',
+      width: 350,
       editable: false,
     },
     {
-      field: "updated",
-      headerName: "Atualizado em",
-      type: "dateTime",
-      width: 230,
+      field: 'updated',
+      headerName: 'Atualizado em',
+      type: 'dateTime',
+      width: 350,
       editable: false,
     },
     {
-      field: "actions",
-      type: "actions",
-      headerName: "Ações",
-      width: 230,
-      cellClassName: "actions",
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Ações',
+      width: 200,
+      cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Salvar"
-              color="primary"
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancelar"
-              onClick={handleCancelClick(id)}
-              color="error"
-            />,
-          ];
-        }
-
         return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            onClick={handleEditClick(id)}
-            color="primary"
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="error"
-          />,
+          <Tooltip title="Editar" key="edit">
+            <GridActionsCellItem
+              icon={<EditIcon />}
+              label="Edit"
+              onClick={handleSaveClick(id)}
+              color="primary"
+            />
+          </Tooltip>,
+          <Tooltip title="Deletar" key="delete">
+            <GridActionsCellItem
+              icon={<DeleteIcon />}
+              label="Delete"
+              onClick={handleDeleteClick(id)}
+              color="error"
+            />
+          </Tooltip>,
         ];
       },
     },
   ];
 
+  if (isError) {
+    return <div>Error loading data...</div>;
+  }
+
   return (
-    <ContainerTable>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        editMode="cell"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        checkboxSelection
-        autoHeight
-        slots={{
-          toolbar: EditToolbar as GridSlots["toolbar"],
-        }}
-        slotProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-      />
-    </ContainerTable>
+    <>
+      <ContainerTable>
+        <CTA>
+          <Link href="/category/create">
+            <Button variant="contained" color="success" size="large">
+              Cadastrar
+            </Button>
+          </Link>
+        </CTA>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          editMode="cell"
+          rowModesModel={rowModesModel}
+          loading={isLoading}
+          checkboxSelection
+          autoHeight
+          pageSizeOptions={[10, 50, 100]}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 10 },
+            },
+            sorting: {
+              sortModel: [{ field: 'name', sort: 'asc' }],
+            },
+          }}
+          slots={{
+            noRowsOverlay: NoRow,
+          }}
+          slotProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          sx={{ '--DataGrid-overlayHeight': '18.75rem' }}
+        />
+      </ContainerTable>
+      {openPopup && (
+        <EditCategoryModal
+          handleClose={() => setOpenPopup(false)}
+          category={categoryToEdit}
+          id={categoryToEdit?.id}
+        />
+      )}
+      {renderDeletePopup()}
+    </>
   );
-}
+};
+
+export default TableCategories;

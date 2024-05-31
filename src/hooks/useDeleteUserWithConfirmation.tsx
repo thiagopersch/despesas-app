@@ -35,7 +35,7 @@ export function useDeleteUserWithConfirmation(session?: Session | null) {
       isOpen={!!userToDelete}
       onClose={handleClosePopup}
       onConfirm={handleConfirmDelete}
-      user={userToDelete}
+      obj={userToDelete}
       message="Você tem certeza que deseja excluir?"
     />
   );
