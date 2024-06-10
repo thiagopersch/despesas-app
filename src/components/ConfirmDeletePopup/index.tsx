@@ -1,4 +1,4 @@
-import { Button, Typography } from '@mui/material';
+import { Button } from '@mui/material';
 import { ReactNode } from 'react';
 import * as S from './styles';
 
@@ -22,9 +22,9 @@ const ConfirmDeletePopup = ({
     <S.Wrapper>
       <S.Content>
         <S.Title color="primary" fontWeight="bold">
-          Confirmação de Deleção
+          Confirmar exclusão
         </S.Title>
-        <Typography variant="inherit">{message}</Typography>
+        <S.Message variant="inherit">{message}</S.Message>
         <S.CTA>
           <Button variant="outlined" onClick={onClose}>
             Cancelar

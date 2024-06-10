@@ -17,19 +17,19 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { schema } from './schema';
 
-import Uploader from '@/components/Uploader';
 import { CategoryForm } from '@/model/Category';
 import { useAddCategoryMutation } from '@/requests/mutations/categories';
 import * as S from './styles';
 
-type CategoryProps = { category: CategoryForm };
+type CategoryProps = { category?: CategoryForm };
 
 type Schema = z.infer<typeof schema>;
 
-export default function CreateCategory({ category }: CategoryProps) {
+const CreateCategory = ({ category }: CategoryProps) => {
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -39,12 +39,10 @@ export default function CreateCategory({ category }: CategoryProps) {
     mode: 'all',
     resolver: zodResolver(schema),
     defaultValues: {
-      image: '',
-      name: '',
-      status: true,
+      name: category?.name ?? '',
+      status: category?.status ?? true,
     },
   });
-  const router = useRouter();
 
   const mutation = useAddCategoryMutation();
 
@@ -53,10 +51,9 @@ export default function CreateCategory({ category }: CategoryProps) {
       setLoading(true);
       setErrorMessage(null);
       try {
-        const response = await mutation.mutateAsync(values);
+        const response = await mutation.mutateAsync({ ...values });
 
         if (response.status === 201) {
-          setSuccess(true);
           router.push('/category');
         }
       } catch (error) {
@@ -95,7 +92,6 @@ export default function CreateCategory({ category }: CategoryProps) {
       </Typography>
       <form onSubmit={handleSubmit(handleSave)}>
         <S.WrapperInputs>
-          <Uploader />
           <TextField
             id="name"
             type="text"
@@ -113,7 +109,7 @@ export default function CreateCategory({ category }: CategoryProps) {
             control={
               <Checkbox
                 {...register('status')}
-                defaultChecked={!!category?.status}
+                defaultChecked={!!category?.status ?? true}
               />
             }
             label="Status"
@@ -146,4 +142,6 @@ export default function CreateCategory({ category }: CategoryProps) {
       </form>
     </S.Wrapper>
   );
-}
+};
+
+export default CreateCategory;

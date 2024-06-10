@@ -34,6 +34,7 @@ export const Content = styled(Box)`
 export const Title = styled(Typography)`
   ${({ theme }) => css`
     font-size: ${theme.fonts.sizes.small};
+    text-align: center;
 
     ${media.lessThan('medium')`
       font-size: 1.3rem;
@@ -41,8 +42,15 @@ export const Title = styled(Typography)`
   `}
 `;
 
+export const Message = styled(Typography)`
+  ${({ theme }) => css`
+    font-size: ${theme.fonts.sizes.xxsmall};
+    color: ${theme.colors.gray};
+    text-align: center;
+  `};
+`;
+
 export const CTA = styled(Box)`
-  margin-top: 2rem;
   display: flex;
   justify-content: space-between;
   gap: 1rem;

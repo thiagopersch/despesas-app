@@ -1,10 +1,16 @@
 'use client';
 
-import { FormattedUsers, User } from '@/model/User';
-import { listUsers } from '@/requests/queries/users';
+import CTA from '@/components/CTA';
+import ContainerTable from '@/components/ContainerTable';
+import StatusIcon from '@/components/StatusTable';
+import NoRow from '@/components/Table/NoRow';
+import { useDeleteCategoryWithConfirmation } from '@/hooks/useDeleteCategoryWithConfirmation';
+import { Category, FormattedCategory } from '@/model/Category';
+import { listcategories } from '@/requests/queries/categories';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
-import { Button, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
 import {
   DataGrid,
   GridActionsCellItem,
@@ -16,70 +22,70 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import * as React from 'react';
-import ContainerTable from '../ContainerTable';
+import EditCategoryModal from '../Edit';
 
-import { useDeleteUserWithConfirmation } from '@/hooks/useDeleteUserWithConfirmation';
-import { useRouter } from 'next/navigation';
-import CTA from '../CTA';
-import NoRow from '../Table/NoRow';
-import EditUserModal from '../User/Edit';
-
-const TableUsers = () => {
-  const [rows, setRows] = React.useState<FormattedUsers[]>([]);
+const ShowCategory = () => {
+  const [rows, setRows] = React.useState<FormattedCategory[]>([]);
   const [openPopup, setOpenPopup] = React.useState(false);
-  const [userToEdit, setUserToEdit] = React.useState<User>();
+  const [categoryToEdit, setCategoryToEdit] = React.useState<Category>();
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
 
   const {
-    data: users,
-    isLoading,
+    data: categories,
     isError,
-  } = useQuery<FormattedUsers[]>({
-    queryKey: ['get-users'],
-    queryFn: () => listUsers(),
+    isLoading,
+    refetch,
+  } = useQuery<FormattedCategory[]>({
+    queryKey: ['get-categories'],
+    queryFn: () => listcategories(),
   });
 
   React.useEffect(() => {
-    if (users) {
-      setRows(users);
+    if (categories) {
+      setRows(categories);
     }
-  }, [users]);
+  }, [categories]);
 
   const { data: session } = useSession();
-
   const { confirmDelete, renderDeletePopup } =
-    useDeleteUserWithConfirmation(session);
-  const router = useRouter();
+    useDeleteCategoryWithConfirmation(session);
 
-  const handleSaveClick = (id: GridRowId) => async () => {
-    const userToEdit = rows.find((row) => row.id === id);
-    if (userToEdit) {
+  const handleSaveClick = (id: GridRowId) => () => {
+    const categoryToEdit = rows.find((row) => row.id === id);
+    if (categoryToEdit) {
       setOpenPopup(true);
-      setUserToEdit(userToEdit);
+      setCategoryToEdit(categoryToEdit);
     }
   };
 
-  const handleDeleteClick = (id: GridRowId) => async () => {
+  const handleDeleteClick = (id: GridRowId) => () => {
     try {
-      const userToDelete = rows.find((row) => row.id === id);
-      if (userToDelete) {
-        confirmDelete(userToDelete);
-        const updatedRows = rows.filter((row) => row.id !== id);
+      const categoryToDelete = rows.find((row) => row.id === id);
+      if (categoryToDelete) {
+        confirmDelete(categoryToDelete);
+        const updatedRows = rows.filter((row) => row.id === id);
         setRows(updatedRows);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     } finally {
-      router.refresh();
+      refetch();
     }
   };
 
   const columns: GridColDef[] = [
     { field: 'name', headerName: 'Nome', width: 350, editable: false },
-    { field: 'login', headerName: 'Login', width: 350, editable: false },
-
+    {
+      field: 'status',
+      headerName: 'Situação',
+      width: 350,
+      editable: false,
+      renderCell: (params) => {
+        return <StatusIcon status={params.value} />;
+      },
+    },
     {
       field: 'formattedCreatedAt',
       headerName: 'Criado em',
@@ -131,7 +137,7 @@ const TableUsers = () => {
     <>
       <ContainerTable>
         <CTA>
-          <Link href="/users/create">
+          <Link href="/category/create">
             <Button variant="contained" color="success" size="large">
               Cadastrar
             </Button>
@@ -140,10 +146,12 @@ const TableUsers = () => {
         <DataGrid
           rows={rows}
           columns={columns}
+          editMode="cell"
           rowModesModel={rowModesModel}
           loading={isLoading}
           checkboxSelection
           autoHeight
+          pageSizeOptions={[10, 50, 100]}
           initialState={{
             pagination: {
               paginationModel: { page: 0, pageSize: 10 },
@@ -152,7 +160,6 @@ const TableUsers = () => {
               sortModel: [{ field: 'name', sort: 'asc' }],
             },
           }}
-          pageSizeOptions={[10, 50, 100]}
           slots={{
             noRowsOverlay: NoRow,
           }}
@@ -164,10 +171,10 @@ const TableUsers = () => {
       </ContainerTable>
 
       {openPopup && (
-        <EditUserModal
+        <EditCategoryModal
           handleClose={() => setOpenPopup(false)}
-          user={userToEdit}
-          id={userToEdit?.id}
+          category={categoryToEdit}
+          id={categoryToEdit?.id}
         />
       )}
 
@@ -176,4 +183,4 @@ const TableUsers = () => {
   );
 };
 
-export default TableUsers;
+export default ShowCategory;

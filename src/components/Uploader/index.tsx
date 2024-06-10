@@ -20,7 +20,7 @@ const Uploader = () => {
     formData.append('image', image);
 
     axios
-      .post('/upload-image', formData)
+      .post('/category/create', formData)
       .then((response) => {
         setImageUrl(response.data.imageUrl);
         setUploading(false);
@@ -72,8 +72,8 @@ const Uploader = () => {
         {!uploading && imageUrl && (
           <Image
             src={imageUrl}
-            width={300}
-            height={300}
+            width={80}
+            height={80}
             quality={80}
             alt="Uploaded Image"
           />

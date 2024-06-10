@@ -22,7 +22,7 @@ import * as S from './styles';
 type EditCategoryProps = {
   handleClose?: () => void;
   handleSave?: (param: any) => void;
-  category?: CategoryForm;
+  category?: CategoryForm | any;
   id?: string;
 };
 
@@ -51,7 +51,6 @@ const EditCategoryModal = ({
   useEffect(() => {
     if (category) {
       setValue('name', category.name);
-      setValue('image', category.image);
       setValue('status', category.status);
     }
   }, [category, setValue]);
@@ -60,6 +59,7 @@ const EditCategoryModal = ({
   const router = useRouter();
 
   const handleSaved: SubmitHandler<Schema> = async (values: CategoryForm) => {
+    setErrorMessage(null);
     try {
       await mutation.mutateAsync({ ...values, id });
       handleSave && handleSave(values);
@@ -100,15 +100,6 @@ const EditCategoryModal = ({
             Editar categoria
           </Typography>
           <S.WrapperInputs>
-            <TextField
-              label="Imagem"
-              type="file"
-              variant="filled"
-              {...register('image')}
-              helperText={<ErrorMessage>{errors.image?.message}</ErrorMessage>}
-              fullWidth
-              required
-            />
             <TextField
               label="Nome"
               type="text"

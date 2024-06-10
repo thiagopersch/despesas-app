@@ -1,7 +1,7 @@
 'use client';
 
-import TableYear from '@/components/TableYear';
 import TitleDefault from '@/components/TitleDefault';
+import TableYear from '@/components/Year/Show';
 
 export default function Years() {
   return (

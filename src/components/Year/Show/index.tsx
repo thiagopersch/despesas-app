@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import AddIcon from "@mui/icons-material/Add";
-import CancelIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import Button from "@mui/material/Button";
+import AddIcon from '@mui/icons-material/Add';
+import CancelIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import Button from '@mui/material/Button';
 import {
   DataGrid,
   GridActionsCellItem,
@@ -19,15 +19,15 @@ import {
   GridRowsProp,
   GridSlots,
   GridToolbarContainer,
-} from "@mui/x-data-grid";
+} from '@mui/x-data-grid';
 import {
   randomCreatedDate,
   randomId,
   randomTraderName,
   randomUpdatedDate,
-} from "@mui/x-data-grid-generator";
-import * as React from "react";
-import ContainerTable from "../ContainerTable";
+} from '@mui/x-data-grid-generator';
+import * as React from 'react';
+import ContainerTable from '../../ContainerTable';
 
 const initialRows: GridRowsProp = [
   {
@@ -53,7 +53,7 @@ const initialRows: GridRowsProp = [
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
   setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
+    newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
   ) => void;
 }
 
@@ -62,16 +62,16 @@ function EditToolbar(props: EditToolbarProps) {
 
   const handleClick = () => {
     const id = randomId();
-    setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
+    setRows((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
     setRowModesModel((oldModel) => ({
       ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
     }));
   };
 
   return (
     <GridToolbarContainer
-      sx={{ display: "flex", margin: "1rem", justifyContent: "flex-end" }}
+      sx={{ display: 'flex', margin: '1rem', justifyContent: 'flex-end' }}
     >
       <Button
         variant="contained"
@@ -85,15 +85,15 @@ function EditToolbar(props: EditToolbarProps) {
   );
 }
 
-export default function TableYear() {
+export default function ShowYear() {
   const [rows, setRows] = React.useState(initialRows);
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {}
+    {},
   );
 
-  const handleRowEditStop: GridEventListener<"rowEditStop"> = (
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
     params,
-    event
+    event,
   ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
@@ -135,27 +135,27 @@ export default function TableYear() {
   };
 
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Nome", width: 200, editable: true },
+    { field: 'name', headerName: 'Nome', width: 200, editable: true },
     {
-      field: "created",
-      headerName: "Criado em",
-      type: "dateTime",
+      field: 'created',
+      headerName: 'Criado em',
+      type: 'dateTime',
       width: 230,
       editable: false,
     },
     {
-      field: "updated",
-      headerName: "Atualizado em",
-      type: "dateTime",
+      field: 'updated',
+      headerName: 'Atualizado em',
+      type: 'dateTime',
       width: 230,
       editable: false,
     },
     {
-      field: "actions",
-      type: "actions",
-      headerName: "Ações",
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Ações',
       width: 230,
-      cellClassName: "actions",
+      cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
@@ -207,7 +207,7 @@ export default function TableYear() {
         checkboxSelection
         autoHeight
         slots={{
-          toolbar: EditToolbar as GridSlots["toolbar"],
+          toolbar: EditToolbar as GridSlots['toolbar'],
         }}
         slotProps={{
           toolbar: { setRows, setRowModesModel },

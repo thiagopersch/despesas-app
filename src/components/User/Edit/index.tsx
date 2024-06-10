@@ -67,6 +67,7 @@ const EditUserModal = ({
   const handleSaved: SubmitHandler<SchemaSignIn> = async (
     values: UserFormEdit,
   ) => {
+    setErrorMessage(null);
     try {
       await mutation.mutateAsync({ ...values, id });
       handleSave && handleSave(values);
