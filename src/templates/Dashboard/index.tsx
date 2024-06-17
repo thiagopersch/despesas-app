@@ -10,8 +10,10 @@ export default function Dashboard() {
           </ListSubheader>
         }
       >
-        <ListItemText primary="1. Criar modal de deletar e fazer de forma global." />
-        <ListItemText primary="2. Criar CRUD das categorias." />
+        <del>
+          <ListItemText primary="1. Criar modal de deletar e fazer de forma global." />
+          <ListItemText primary="2. Criar CRUD das categorias." />
+        </del>
         <ListItemText primary="3. Criar CRUD das prioridades" />
         <ListItemText primary="4. Criar CRUD dos métodos de pagamentos." />
         <ListItemText primary="5. Criar CRUD dos status." />

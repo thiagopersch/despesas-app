@@ -17,15 +17,15 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { schema } from './schema';
 
-import { CategoryForm } from '@/model/Category';
-import { useAddCategoryMutation } from '@/requests/mutations/categories';
+import { PriorityForm } from '@/model/Priority';
+import { useAddPriorityMutation } from '@/requests/mutations/priorities';
 import * as S from './styles';
 
-type CategoryProps = { category?: CategoryForm };
+type PriorityProps = { priority?: PriorityForm };
 
 type Schema = z.infer<typeof schema>;
 
-const CreateCategory = ({ category }: CategoryProps) => {
+const CreatePriority = ({ priority }: PriorityProps) => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
@@ -38,30 +38,27 @@ const CreateCategory = ({ category }: CategoryProps) => {
     criteriaMode: 'all',
     mode: 'all',
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: category?.name ?? '',
-      status: category?.status ?? true,
-    },
+    defaultValues: priority,
   });
 
-  const mutation = useAddCategoryMutation();
+  const mutation = useAddPriorityMutation();
 
   const handleSave: SubmitHandler<Schema> = useCallback(
-    async (values: CategoryForm) => {
+    async (values: PriorityForm) => {
       setLoading(true);
       setErrorMessage(null);
       try {
         const response = await mutation.mutateAsync({ ...values });
 
         if (response.status === 201) {
-          router.push('/category');
+          router.push('/priority');
         }
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           if (error.response.status === 400) {
             setErrorMessage('Já existe um registro com estes dados.');
           } else {
-            setErrorMessage('Ocorreu algum erro ao tentar criar o registro.');
+            setErrorMessage('Ocorreu algum erro ao tentar criar registro.');
           }
         } else {
           setErrorMessage('Ocorreu um erro inesperado.');
@@ -88,7 +85,7 @@ const CreateCategory = ({ category }: CategoryProps) => {
           marginBottom: '1rem',
         }}
       >
-        Criação de categorias
+        Criação de prioridades
       </Typography>
       <form onSubmit={handleSubmit(handleSave)}>
         <S.WrapperInputs>
@@ -104,11 +101,12 @@ const CreateCategory = ({ category }: CategoryProps) => {
             required
             fullWidth
           />
+
           <FormControlLabel
             control={
               <Checkbox
                 {...register('status')}
-                defaultChecked={!!category?.status ?? true}
+                defaultChecked={!!priority?.status ?? true}
               />
             }
             label="Status"
@@ -117,6 +115,7 @@ const CreateCategory = ({ category }: CategoryProps) => {
             <Typography style={{ color: 'red' }}>{errorMessage}</Typography>
           )}
         </S.WrapperInputs>
+
         <S.WrapperCTA>
           {loading && <CircularProgress />}
           {!loading && (
@@ -142,4 +141,4 @@ const CreateCategory = ({ category }: CategoryProps) => {
   );
 };
 
-export default CreateCategory;
+export default CreatePriority;
