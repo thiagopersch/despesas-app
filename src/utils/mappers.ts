@@ -1,4 +1,8 @@
 import { Category, FormattedCategory } from '@/model/Category';
+import {
+  FormattedPaymentMethods,
+  PaymentMethods,
+} from '@/model/PaymentMethods';
 import { FormattedPriority, Priority } from '@/model/Priority';
 import { FormattedUsers, User } from '@/model/User';
 import dayjs from 'dayjs';
@@ -25,6 +29,18 @@ export const priorityMapper = (priority: Priority): FormattedPriority => ({
     'DD/MM/YYYY [às] HH:mm:ss',
   ),
   formattedUpdatedAt: dayjs(priority.updatedAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+});
+
+export const paymentMethodsMapper = (
+  paymentMethods: PaymentMethods,
+): FormattedPaymentMethods => ({
+  ...paymentMethods,
+  formattedCreatedAt: dayjs(paymentMethods.createdAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+  formattedUpdatedAt: dayjs(paymentMethods.updatedAt).format(
     'DD/MM/YYYY [às] HH:mm:ss',
   ),
 });

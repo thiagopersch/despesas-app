@@ -1,11 +1,15 @@
 'use client';
 
 import CTA from '@/components/CTA';
+import ContainerTable from '@/components/ContainerTable';
 import StatusIcon from '@/components/StatusTable';
 import NoRow from '@/components/Table/NoRow';
-import { useDeletePriorityWithConfirmation } from '@/hooks/useDeletePriorityWithConfirmation';
-import { FormattedPriority, Priority } from '@/model/Priority';
-import { listPriorities } from '@/requests/queries/priorities';
+import { useDeletePaymentMethodsWithConfirmation } from '@/hooks/useDeletePaymentMethodsWithConfirmation';
+import {
+  FormattedPaymentMethods,
+  PaymentMethods,
+} from '@/model/PaymentMethods';
+import { ListPaymentMethods } from '@/requests/queries/paymentMethods';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import { Button } from '@mui/material';
@@ -20,48 +24,50 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import * as React from 'react';
-import ContainerTable from '../../ContainerTable';
-import EditPriorityModal from '../Edit';
+import EditPaymentMethodsModal from '../Edit';
 
-export default function TablePriority() {
-  const [rows, setRows] = React.useState<FormattedPriority[]>([]);
+export default function ShowPaymentMethods() {
+  const [rows, setRows] = React.useState<FormattedPaymentMethods[]>([]);
   const [openPopup, setOpenPopup] = React.useState(false);
-  const [priorityToEdit, setPriorityToEdit] = React.useState<Priority>();
+  const [paymentMethodsToEdit, setPaymentMethodsToEdit] =
+    React.useState<PaymentMethods>();
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
 
   const {
-    data: priority,
+    data: paymentMethods,
     isError,
     isLoading,
     refetch,
-  } = useQuery<FormattedPriority[]>({
-    queryKey: ['get-priority'],
-    queryFn: () => listPriorities(),
+  } = useQuery<FormattedPaymentMethods[]>({
+    queryKey: ['get-paymentMethods'],
+    queryFn: () => ListPaymentMethods(),
   });
 
   React.useEffect(() => {
-    if (priority) setRows(priority);
+    if (paymentMethods) setRows(paymentMethods);
   });
 
   const { data: session } = useSession();
   const { confirmDelete, renderDeletePopup } =
-    useDeletePriorityWithConfirmation(session);
+    useDeletePaymentMethodsWithConfirmation(session);
 
-  const handleSaveClick = (id: GridRowId) => () => {
-    const priorityToEdit = rows.find((row) => row.id === id);
-    if (priorityToEdit) {
+  const handleEditClick = (id: GridRowId) => () => {
+    const paymentMethodsToEdit = rows.find((row) => row.id === id);
+
+    if (paymentMethodsToEdit) {
       setOpenPopup(true);
-      setPriorityToEdit(priorityToEdit);
+      setPaymentMethodsToEdit(paymentMethodsToEdit);
     }
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
     try {
-      const priorityToDelete = rows.find((row) => row.id === id);
-      if (priorityToDelete) {
-        confirmDelete(priorityToDelete);
+      const paymentMethodsToDelete = rows.find((row) => row.id === id);
+
+      if (paymentMethodsToDelete) {
+        confirmDelete(paymentMethodsToDelete);
         const updatedRows = rows.filter((row) => row.id === id);
         setRows(updatedRows);
       }
@@ -87,14 +93,14 @@ export default function TablePriority() {
       field: 'formattedCreatedAt',
       headerName: 'Criado em',
       type: 'string',
-      width: 350,
+      width: 230,
       editable: false,
     },
     {
       field: 'formattedUpdatedAt',
       headerName: 'Atualizado em',
       type: 'string',
-      width: 350,
+      width: 230,
       editable: false,
     },
     {
@@ -108,7 +114,7 @@ export default function TablePriority() {
           <GridActionsCellItem
             icon={<EditIcon />}
             label="Edit"
-            onClick={handleSaveClick(id)}
+            onClick={handleEditClick(id)}
             color="primary"
           />,
           <GridActionsCellItem
@@ -130,7 +136,7 @@ export default function TablePriority() {
     <>
       <ContainerTable>
         <CTA>
-          <Link href="/priority/create">
+          <Link href="/paymentMethods/create">
             <Button variant="contained" color="success" size="large">
               Cadastrar
             </Button>
@@ -163,10 +169,10 @@ export default function TablePriority() {
         />
       </ContainerTable>
       {openPopup && (
-        <EditPriorityModal
+        <EditPaymentMethodsModal
           handleClose={() => setOpenPopup(false)}
-          priority={priorityToEdit}
-          id={priorityToEdit?.id}
+          paymentMethods={paymentMethodsToEdit}
+          id={paymentMethodsToEdit?.id}
         />
       )}
 

@@ -1,13 +1,13 @@
 'use client';
 
-import TablePaymentMethods from '@/components/TablePaymentMethods';
+import ShowPaymentMethods from '@/components/PaymentMethods/Show';
 import TitleDefault from '@/components/TitleDefault';
 
 export default function PaymentMethods() {
   return (
     <>
       <TitleDefault>Métodos de pagamento</TitleDefault>
-      <TablePaymentMethods />
+      <ShowPaymentMethods />
     </>
   );
 }
