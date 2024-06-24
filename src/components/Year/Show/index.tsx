@@ -1,153 +1,102 @@
 'use client';
 
-import AddIcon from '@mui/icons-material/Add';
-import CancelIcon from '@mui/icons-material/Close';
+import CTA from '@/components/CTA';
+import StatusIcon from '@/components/StatusTable';
+import NoRow from '@/components/Table/NoRow';
+import { useDeleteYearsWithConfirmation } from '@/hooks/useDeleteYearsWithConfirmation';
+import { FormattedYear, Year } from '@/model/Year';
+import { ListYears } from '@/requests/queries/years';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import Button from '@mui/material/Button';
+import { Button } from '@mui/material';
 import {
   DataGrid,
   GridActionsCellItem,
   GridColDef,
-  GridEventListener,
-  GridRowEditStopReasons,
   GridRowId,
-  GridRowModel,
-  GridRowModes,
   GridRowModesModel,
-  GridRowsProp,
-  GridSlots,
-  GridToolbarContainer,
 } from '@mui/x-data-grid';
-import {
-  randomCreatedDate,
-  randomId,
-  randomTraderName,
-  randomUpdatedDate,
-} from '@mui/x-data-grid-generator';
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import * as React from 'react';
 import ContainerTable from '../../ContainerTable';
-
-const initialRows: GridRowsProp = [
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    created: randomCreatedDate(),
-    updated: randomUpdatedDate(),
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    created: randomCreatedDate(),
-    updated: randomUpdatedDate(),
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    created: randomCreatedDate(),
-    updated: randomUpdatedDate(),
-  },
-];
-
-interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
-  setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
-  ) => void;
-}
-
-function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props;
-
-  const handleClick = () => {
-    const id = randomId();
-    setRows((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
-    }));
-  };
-
-  return (
-    <GridToolbarContainer
-      sx={{ display: 'flex', margin: '1rem', justifyContent: 'flex-end' }}
-    >
-      <Button
-        variant="contained"
-        color="success"
-        startIcon={<AddIcon />}
-        onClick={handleClick}
-      >
-        Adicionar
-      </Button>
-    </GridToolbarContainer>
-  );
-}
+import EditYearsModal from '../Edit';
 
 export default function ShowYear() {
-  const [rows, setRows] = React.useState(initialRows);
+  const [rows, setRows] = React.useState<FormattedYear[]>([]);
+  const [openPopup, setOpenPopup] = React.useState(false);
+  const [yearToEdit, setYearToEdit] = React.useState<Year>();
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
-    params,
-    event,
-  ) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
-    }
-  };
+  const {
+    data: year,
+    isError,
+    isLoading,
+    refetch,
+  } = useQuery<FormattedYear[]>({
+    queryKey: ['get-year'],
+    queryFn: () => ListYears(),
+  });
+
+  React.useEffect(() => {
+    if (year) setRows(year);
+  });
+
+  const { data: session } = useSession();
+
+  const { confirmDelete, renderDeletePopup } =
+    useDeleteYearsWithConfirmation(session);
 
   const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
-
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    const yearToEdit = rows.find((row) => row.id === id);
+    if (yearToEdit) {
+      setOpenPopup(true);
+      setYearToEdit(yearToEdit);
+    }
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row) => row.id !== id));
-  };
-
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
+    try {
+      const yearToDelete = rows.find((row) => row.id === id);
+      if (yearToDelete) {
+        confirmDelete(yearToDelete);
+        const updatedRows = rows.filter((row) => row.id !== id);
+        setRows(updatedRows);
+        refetch();
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      refetch();
     }
   };
 
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
-    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    return updatedRow;
-  };
-
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
-
   const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Nome', width: 200, editable: true },
+    { field: 'year', headerName: 'Ano', width: 250, editable: false },
     {
-      field: 'created',
+      field: 'status',
+      headerName: 'Situação',
+      width: 250,
+      editable: false,
+      renderCell: (params) => {
+        return <StatusIcon status={params.value} />;
+      },
+    },
+    {
+      field: 'formattedCreatedAt',
       headerName: 'Criado em',
-      type: 'dateTime',
-      width: 230,
+      type: 'string',
+      width: 250,
       editable: false,
     },
     {
-      field: 'updated',
+      field: 'formattedUpdatedAt',
       headerName: 'Atualizado em',
-      type: 'dateTime',
-      width: 230,
+      type: 'string',
+      width: 250,
       editable: false,
     },
     {
@@ -157,25 +106,6 @@ export default function ShowYear() {
       width: 230,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Salvar"
-              color="primary"
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancelar"
-              onClick={handleCancelClick(id)}
-              color="error"
-            />,
-          ];
-        }
-
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
@@ -194,25 +124,55 @@ export default function ShowYear() {
     },
   ];
 
+  if (isError) {
+    return <div>Error loading data...</div>;
+  }
+
   return (
-    <ContainerTable>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        editMode="cell"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        checkboxSelection
-        autoHeight
-        slots={{
-          toolbar: EditToolbar as GridSlots['toolbar'],
-        }}
-        slotProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-      />
-    </ContainerTable>
+    <>
+      <ContainerTable>
+        <CTA>
+          <Link href="/years/create">
+            <Button variant="contained" color="success" size="large">
+              Cadastrar
+            </Button>
+          </Link>
+        </CTA>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          editMode="cell"
+          rowModesModel={rowModesModel}
+          loading={isLoading}
+          checkboxSelection
+          autoHeight
+          pageSizeOptions={[10, 50, 100]}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 10 },
+            },
+            sorting: {
+              sortModel: [{ field: 'year', sort: 'asc' }],
+            },
+          }}
+          slots={{
+            noRowsOverlay: NoRow,
+          }}
+          slotProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          sx={{ '--DataGrid-overlayHeight': '18.75rem' }}
+        />
+      </ContainerTable>
+      {openPopup && (
+        <EditYearsModal
+          handleClose={() => setOpenPopup(false)}
+          years={yearToEdit}
+          id={yearToEdit?.id}
+        />
+      )}
+
+      {renderDeletePopup()}
+    </>
   );
 }

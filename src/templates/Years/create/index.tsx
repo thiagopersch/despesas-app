@@ -1,9 +1,17 @@
 'use client';
 
-import ErrorMessage from '@/components/ErrorMessage';
-import { PaymentMethodsForm } from '@/model/PaymentMethods';
-import { useAddPaymentMethodsMutation } from '@/requests/mutations/paymentMethods';
+import { YearForm } from '@/model/Year';
+import { useAddYearMutation } from '@/requests/mutations/years';
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import React, { useCallback } from 'react';
+import { useFormStatus } from 'react-dom';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { schema } from './schema';
+
+import ErrorMessage from '@/components/ErrorMessage';
 import {
   Button,
   Checkbox,
@@ -12,20 +20,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import React, { useCallback } from 'react';
-import { useFormStatus } from 'react-dom';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { schema } from './schema';
 import * as S from './styles';
 
-type PaymentMethodsProps = { paymentMethod?: PaymentMethodsForm };
+type YearProps = { year?: YearForm };
 
 type Schema = z.infer<typeof schema>;
 
-const CreatePaymentMethods = ({ paymentMethod }: PaymentMethodsProps) => {
+const CreateYear = ({ year }: YearProps) => {
   const [loading, setLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const router = useRouter();
@@ -39,18 +40,18 @@ const CreatePaymentMethods = ({ paymentMethod }: PaymentMethodsProps) => {
     criteriaMode: 'all',
     mode: 'all',
     resolver: zodResolver(schema),
-    defaultValues: paymentMethod,
+    defaultValues: year,
   });
 
-  const mutation = useAddPaymentMethodsMutation();
+  const mutation = useAddYearMutation();
 
   const handleSave: SubmitHandler<Schema> = useCallback(
-    async (values: PaymentMethodsForm) => {
+    async (values: YearForm) => {
       try {
         setLoading(pending);
         setErrorMessage(null);
         const response = await mutation.mutateAsync({ ...values });
-        if (response.status === 201) router.push('/paymentMethods');
+        if (response.status === 201) router.push('/years');
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           if (error.response.status === 400) {
@@ -58,8 +59,6 @@ const CreatePaymentMethods = ({ paymentMethod }: PaymentMethodsProps) => {
           } else {
             setErrorMessage('Ocorreu algum erro ao tentar criar registro.');
           }
-        } else {
-          setErrorMessage('Ocorreu um erro inesperado.');
         }
       } finally {
         setLoading(false);
@@ -83,17 +82,18 @@ const CreatePaymentMethods = ({ paymentMethod }: PaymentMethodsProps) => {
           marginBottom: '1rem',
         }}
       >
-        Criação de métodos de pagamento
+        Criação dos anos
       </Typography>
       <form onSubmit={handleSubmit(handleSave)}>
         <S.WrapperInputs>
           <TextField
-            id="name"
+            id="year"
             type="text"
-            label="Nome"
-            {...register('name')}
-            aria-invalid={errors.name ? true : false}
-            helperText={<ErrorMessage>{errors.name?.message}</ErrorMessage>}
+            label="Ano"
+            {...register('year')}
+            aria-invalid={errors.year ? true : false}
+            helperText={<ErrorMessage>{errors.year?.message}</ErrorMessage>}
+            inputProps={{ maxLength: 4 }}
             variant="filled"
             disabled={loading}
             required
@@ -104,7 +104,7 @@ const CreatePaymentMethods = ({ paymentMethod }: PaymentMethodsProps) => {
             control={
               <Checkbox
                 {...register('status')}
-                defaultChecked={!!paymentMethod?.status ?? true}
+                defaultChecked={!!year?.status ?? true}
               />
             }
             label="Status"
@@ -139,4 +139,4 @@ const CreatePaymentMethods = ({ paymentMethod }: PaymentMethodsProps) => {
   );
 };
 
-export default CreatePaymentMethods;
+export default CreateYear;
