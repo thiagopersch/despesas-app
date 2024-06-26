@@ -1,15 +1,8 @@
-import { nextAuthOptions } from '@/auth/nextAuthOptions';
-import NextAuth from 'next-auth';
-
-const handler = NextAuth(nextAuthOptions);
-
-export { handler as GET, handler as POST };
-
-/* import axios from 'axios';
-import NextAuth, { NextAuthOptions } from 'next-auth';
+import axios from 'axios';
+import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-const nextAuthOptions: NextAuthOptions = {
+export const nextAuthOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -17,7 +10,6 @@ const nextAuthOptions: NextAuthOptions = {
         login: { label: 'login', type: 'email' },
         password: { label: 'password', type: 'password' },
       },
-
       async authorize(credentials: any) {
         try {
           const res = await axios.post(`${process.env.API_URL}/auth/signin`, {
@@ -59,8 +51,3 @@ const nextAuthOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   useSecureCookies: false,
 };
-
-const handler = NextAuth(nextAuthOptions);
-
-export { handler as GET, handler as POST, nextAuthOptions };
- */
