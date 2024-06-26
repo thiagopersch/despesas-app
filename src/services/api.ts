@@ -8,8 +8,8 @@ const createApi = (session?: Session | null) => {
   const api = axios.create({
     baseURL:
       isServer && process.env.APP_ENV === 'production'
-        ? process.env.SERVER_API_URL
-        : process.env.NEXT_PUBLIC_API_URL,
+        ? process.env.API_URL
+        : process.env.SERVER_API_URL,
     headers: {
       authorization: jwt ? `Bearer ${jwt}` : undefined,
     },
