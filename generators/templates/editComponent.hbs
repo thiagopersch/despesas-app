@@ -1,0 +1,86 @@
+import ErrorMessage from '@/components/ErrorMessage';
+import { {{pascalCase name}}Form } from '@/model/{{pascalCase name}}';
+import { useAdd{{pascalCase name}}Mutation } from '@/requests/mutations/{{camelCase name}}';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+Box,
+Button,
+Checkbox,
+FormControlLabel,
+Modal,
+TextField,
+Typography,
+} from '@mui/material';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { schema } from './schema';
+import * as S from './styles';
+
+type Edit{{pascalCase name}}Props = {
+handleClose?: () => void;
+handleSave?: (param: any) => void;
+{{camelCase name}}?: {{pascalCase name}}Form | any;
+id?: string;
+};
+
+type Schema = z.infer<typeof schema>;
+
+const Edit{{pascalCase name}}Modal = ({
+handleClose,
+{{camelCase name}},
+handleSave,
+id,
+}: Edit{{pascalCase name}}Props) => {
+const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+const {
+register,
+setValue,
+handleSubmit,
+formState: { errors },
+} = useForm<{{pascalCase name}}Form>({
+criteriaMode: 'all',
+mode: 'all',
+resolver: zodResolver(schema),
+defaultValues: {{camelCase name}},
+});
+
+useEffect(() => {
+if ({{camelCase name}}) {
+setValue('name', {{camelCase name}}.name);
+setValue('status', {{camelCase name}}.status);
+}
+}, [{{camelCase name}}, setValue]);
+
+const mutation = useAdd{{pascalCase name}}Mutation();
+const router = useRouter();
+
+const handleSaved: SubmitHandler<Schema> = async (values: {{pascalCase name}}Form) => {
+setErrorMessage(null);
+try {
+await mutation.mutateAsync({ ...values, id });
+handleSave && handleSave(values);
+handleClose && handleClose();
+router.refresh();
+} catch (error) {
+if (axios.isAxiosError(error) && error.response) {
+if (error.response.status === 400) {
+setErrorMessage('{{pascalCase name}} já existente');
+} else {
+setErrorMessage('Algo deu errado!');
+}
+} else {
+setErrorMessage('Algo deu errado!');
+}
+} finally {
+router.refresh();
+}
+};
+
+return ();
+};
+
+export default Edit{{pascalCase name}}Modal;

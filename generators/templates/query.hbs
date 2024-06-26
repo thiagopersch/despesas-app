@@ -1,0 +1,20 @@
+import { {{pascalCase name}}, Formatted{{pascalCase name}}  } from '@/model/{{pascalCase name}}';
+import createApi from '@/services/api';
+import { {{camelCase name}}Mapper } from '@/utils/mappers';
+import { Session } from 'next-auth';
+
+type List{{pascalCase name}}Filters = {}
+
+export const list{{pascalCase name}} = async (
+  session?: Session | null,
+  filters: List{{pascalCase name}}Filters = {},
+): Promise<Formatted{{pascalCase name}}[]> => {
+  const api = createApi(session);
+
+  const { ...restParams } = filters;
+
+  const params = { ...restParams } as any;
+
+  const response = await api.get<{{pascalCase name}}[]>('/{{camelCase name}}', { params });
+  return response.data.map({{camelCase name}}Mapper);
+}

@@ -1,0 +1,43 @@
+import ConfirmDeletePopup from '@/components/ConfirmDeletePopup';
+import { Formatted{{pascalCase name}} } from '@/model/{{pascalCase name}}';
+import { useDelete{{pascalCase name}}Mutation } from '@/requests/mutations/{{camelCase name}}';
+import { GridRowId } from '@mui/x-data-grid';
+import { Session } from 'next-auth';
+import React, { useCallback, useState } from 'react';
+
+export function useDelete{{pascalCase name}}WithConfirmation(session?: Session | null) {
+const [rows, setRows] = React.useState<Formatted{{pascalCase name}}[]>([]);
+  const [{{camelCase name}}ToDelete, set{{pascalCase name}}ToDelete] = useState(null);
+  const delete{{pascalCase name}}Mutation = useDelete{{pascalCase name}}Mutation(session);
+
+  const confirmDelete = useCallback(({{camelCase name}}: any) => {
+  return set{{pascalCase name}}ToDelete({{camelCase name}});
+  }, []);
+
+  const handleClosePopup = useCallback(() => {
+  set{{pascalCase name}}ToDelete(null);
+  }, []);
+
+  const handleConfirmDelete = useCallback(
+  async (id: GridRowId) => {
+  if ({{camelCase name}}ToDelete) {
+  await delete{{pascalCase name}}Mutation.mutateAsync({{camelCase name}}ToDelete);
+  const updatedRows = rows.filter((row) => row.id !== id);
+  setRows(updatedRows);
+  set{{pascalCase name}}ToDelete(null);
+  }
+  },
+  [{{camelCase name}}ToDelete, delete{{pascalCase name}}Mutation, rows, setRows],
+  );
+
+  const renderDeletePopup = () => (
+  <ConfirmDeletePopup
+    isOpen={!!{{camelCase name}}ToDelete}
+    onClose={handleClosePopup}
+    onConfirm={handleConfirmDelete}
+    obj={ {{camelCase name}}ToDelete }
+    message="Você tem certeza que deseja excluir?" />
+  );
+
+  return { confirmDelete, renderDeletePopup };
+}

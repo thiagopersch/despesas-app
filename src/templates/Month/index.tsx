@@ -1,15 +1,13 @@
 'use client';
 
-import TableMonth from '@/components/TableMonth';
+import ShowMonth from '@/components/Month/Show';
 import TitleDefault from '@/components/TitleDefault';
 
-const Month = () => {
+export default function Month() {
   return (
     <>
-      <TitleDefault>Meses</TitleDefault>
-      <TableMonth />
+      <TitleDefault>Month</TitleDefault>
+      <ShowMonth />
     </>
   );
-};
-
-export default Month;
+}

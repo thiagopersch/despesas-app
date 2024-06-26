@@ -1,0 +1,83 @@
+'use client';
+
+import ErrorMessage from '@/components/ErrorMessage';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+Button,
+Checkbox,
+CircularProgress,
+FormControlLabel,
+TextField,
+Typography,
+} from '@mui/material';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { schema } from './schema';
+
+import { {{pascalCase name}}Form } from '@/model/{{pascalCase name}}';
+import { useAdd{{pascalCase name}}Mutation } from '@/requests/mutations/{{camelCase name}}';
+import * as S from './styles';
+
+type {{pascalCase name}}Props = { {{camelCase name}}?: {{pascalCase name}}Form };
+
+type Schema = z.infer<typeof schema>;
+
+const Create{{pascalCase name}} = ({ {{camelCase name}} }: {{pascalCase name}}Props) => {
+const [loading, setLoading] = useState(false);
+const [errorMessage, setErrorMessage] = useState<string | null>(null);
+const router = useRouter();
+
+const {
+register,
+handleSubmit,
+formState: { errors },
+} = useForm<Schema>({
+criteriaMode: 'all',
+mode: 'all',
+resolver: zodResolver(schema),
+defaultValues: {
+name: {{camelCase name}}?.name ?? '',
+status: {{camelCase name}}?.status ?? true,
+},
+});
+
+const mutation = useAdd{{pascalCase name}}Mutation();
+
+const handleSave: SubmitHandler<Schema> = useCallback(
+async (values: {{pascalCase name}}Form) => {
+setLoading(true);
+setErrorMessage(null);
+try {
+const response = await mutation.mutateAsync({ ...values });
+
+if (response.status === 201) {
+router.push('/{{camelCase name}}');
+}
+} catch (error) {
+if (axios.isAxiosError(error) && error.response) {
+if (error.response.status === 400) {
+setErrorMessage('Já existe um registro com estes dados.');
+} else {
+setErrorMessage('Ocorreu algum erro ao tentar criar o registro.');
+}
+} else {
+setErrorMessage('Ocorreu um erro inesperado.');
+}
+} finally {
+setLoading(false);
+}
+},
+[mutation, router],
+);
+
+const handleBack = () => {
+router.back();
+};
+
+return ();
+};
+
+export default Create{{pascalCase name}};

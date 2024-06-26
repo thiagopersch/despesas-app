@@ -1,0 +1,91 @@
+import ToastContent from '@/components/ToastContent';
+import { {{pascalCase name}}, {{pascalCase name}}Form } from '@/model/{{pascalCase name}}';
+
+import createApi from '@/services/api';
+import useMutation from '@/services/useMutation';
+import { Session } from 'next-auth';
+import { useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+
+export function useAdd{{pascalCase name}}Mutation(session?: Session | null) {
+const add{{pascalCase name}} = useCallback(
+async (values: {{pascalCase name}}Form) => {
+const api = createApi(session);
+const requestData = { ...values, id: values.id ? values.id : undefined };
+
+if (!requestData.id) {
+return api.post('/{{camelCase name}}/', requestData);
+} else {
+return api.patch(`/{{camelCase name}}/${requestData.id}`, requestData);
+}
+},
+[session],
+);
+
+return useMutation('add-{{camelCase name}}', add{{pascalCase name}}, {
+linkedQueries: {
+'get-{{camelCase name}}': (
+old: { {{camelCase name}}: {{pascalCase name}}Form[] } | undefined,
+new{{pascalCase name}}: {{pascalCase name}}Form,
+) => {
+if (!old || !old.{{camelCase name}}) {
+return [{ ...new{{pascalCase name}}, id: uuidv4(), disabled: true }];
+}
+
+const existing{{pascalCase name}}Index = old.{{camelCase name}}.findIndex(
+({{camelCase name}}) => {{camelCase name}}.id === new{{pascalCase name}}.id,
+);
+
+if (existing{{pascalCase name}}Index > -1) {
+const update{{pascalCase name}} = [...old.{{camelCase name}}];
+update{{pascalCase name}}[existing{{pascalCase name}}Index] = {
+...new{{pascalCase name}},
+id: old.{{camelCase name}}[existing{{pascalCase name}}Index].id,
+};
+return { {{camelCase name}}: update{{pascalCase name}} };
+} else {
+return {
+{{camelCase name}}: [
+...old.{{camelCase name}},
+{ ...new{{pascalCase name}}, id: uuidv4(), disabled: true },
+],
+};
+}
+},
+},
+renderLoading: function render(new{{pascalCase name}}: {{pascalCase name}}Form) {
+return (
+<ToastContent showSpinner>Salvando: {new{{pascalCase name}}.name}...</ToastContent>
+);
+},
+renderError: () => 'Falha ao inserir o registro!',
+renderSuccess: () => `Inserido com sucesso!`,
+});
+}
+
+export function useDelete{{pascalCase name}}Mutation(session?: Session | null) {
+const delete{{pascalCase name}} = useCallback(
+async ({{camelCase name}}: {{pascalCase name}}) => {
+const api = createApi(session);
+return api.delete(`/{{camelCase name}}/${{camelCase name}}.id}`);
+},
+[session],
+);
+
+return useMutation('delete-{{camelCase name}}', delete{{pascalCase name}}, {
+linkedQueries: {
+'get-{{camelCase name}}': (old{{pascalCase name}}: {{pascalCase name}}[], deleted{{pascalCase name}}:
+{{pascalCase name}}) =>
+old{{pascalCase name}}?.map(({{camelCase name}}) =>
+{{camelCase name}}.id === deleted{{pascalCase name}}.id
+? { ...{{camelCase name}}, disabled: true }
+: {{camelCase name}},
+),
+},
+renderLoading: function render({{camelCase name}}: {{pascalCase name}}) {
+return <ToastContent showSpinner>Excluindo: { {{camelCase name}}.name }...</ToastContent>;
+},
+renderError: ({{camelCase name}}: {{pascalCase name}}) => `Falha ao excluir: ${ {{camelCase name}}.name }`,
+renderSuccess: ({{camelCase name}}: {{pascalCase name}}) => `${ {{camelCase name}}.name } excluído com sucesso!`,
+});
+}

@@ -1,0 +1,8 @@
+export type {{pascalCase name}} = {};
+
+export type {{pascalCase name}}Form = Pick<{{pascalCase name}}, ''>;
+
+  export type Formatted{{pascalCase name}} = {{pascalCase name}} & {
+  formattedCreatedAt?: string;
+  formattedUpdatedAt?: string;
+  };
