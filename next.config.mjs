@@ -21,7 +21,6 @@ const nextConfig = {
     SERVER_API_URL: process.env.SERVER_API_URL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     CLIENT_FETCH_ERROR: process.env.CLIENT_FETCH_ERROR,
-    JWT_SIGNING_PRIVATE_KEY: process.env.JWT_SIGNING_PRIVATE_KEY,
   },
 };
 

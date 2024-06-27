@@ -67,7 +67,7 @@ export function useDelete{{pascalCase name}}Mutation(session?: Session | null) {
 const delete{{pascalCase name}} = useCallback(
 async ({{camelCase name}}: {{pascalCase name}}) => {
 const api = createApi(session);
-return api.delete(`/{{camelCase name}}/${{camelCase name}}.id}`);
+return api.delete(`/{{camelCase name}}/${ {{camelCase name}} }.id}`);
 },
 [session],
 );
@@ -83,9 +83,9 @@ old{{pascalCase name}}?.map(({{camelCase name}}) =>
 ),
 },
 renderLoading: function render({{camelCase name}}: {{pascalCase name}}) {
-return <ToastContent showSpinner>Excluindo: { {{camelCase name}}.name }...</ToastContent>;
+return <ToastContent showSpinner>Excluindo...</ToastContent>;
 },
-renderError: ({{camelCase name}}: {{pascalCase name}}) => `Falha ao excluir: ${ {{camelCase name}}.name }`,
-renderSuccess: ({{camelCase name}}: {{pascalCase name}}) => `${ {{camelCase name}}.name } excluído com sucesso!`,
+renderError: ({{camelCase name}}: {{pascalCase name}}) => `Falha ao excluir o registro!`,
+renderSuccess: ({{camelCase name}}: {{pascalCase name}}) => `Registro excluído com sucesso!`,
 });
 }

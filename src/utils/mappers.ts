@@ -5,6 +5,7 @@ import {
   PaymentMethods,
 } from '@/model/PaymentMethods';
 import { FormattedPriority, Priority } from '@/model/Priority';
+import { FormattedTags, Tags } from '@/model/Tags';
 import { FormattedUsers, User } from '@/model/User';
 import { FormattedYear, Year } from '@/model/Year';
 import dayjs from 'dayjs';
@@ -57,4 +58,10 @@ export const monthMapper = (month: Month): FormattedMonth => ({
   ...month,
   formattedCreatedAt: dayjs(month.createdAt).format('DD/MM/YYYY [às] HH:mm:ss'),
   formattedUpdatedAt: dayjs(month.updatedAt).format('DD/MM/YYYY [às] HH:mm:ss'),
+});
+
+export const tagsMapper = (tags: Tags): FormattedTags => ({
+  ...tags,
+  formattedCreatedAt: dayjs(tags.createdAt).format('DD/MM/YYYY [às] HH:mm:ss'),
+  formattedUpdatedAt: dayjs(tags.updatedAt).format('DD/MM/YYYY [às] HH:mm:ss'),
 });
