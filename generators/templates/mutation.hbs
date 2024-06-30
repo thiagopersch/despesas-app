@@ -18,9 +18,7 @@ export function useAdd{{pascalCase name}}Mutation(session?: Session | null) {
       } else {
         return api.patch(`/{{camelCase name}}/${requestData.id}`, requestData);
       }
-    },
-  },
-  [session],
+    },[session],
 );
 
 return useMutation('add-{{camelCase name}}', add{{pascalCase name}}, {

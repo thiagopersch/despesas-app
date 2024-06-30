@@ -13,6 +13,14 @@ const dropdown: SidebarRoute[] = [
     path: '/users',
   },
   {
+    name: 'Módulos',
+    path: '/modules',
+  },
+  {
+    name: 'Perfis',
+    path: '/profiles',
+  },
+  {
     name: 'Categorias',
     path: '/category',
   },

@@ -44,7 +44,7 @@ const NoRow = () => {
           </g>
         </g>
       </svg>
-      <Box sx={{ mt: 1 }}>No Rows</Box>
+      <Box sx={{ mt: 1 }}>Sem registros</Box>
     </S.StyledGridOverlay>
   );
 };

@@ -19,17 +19,16 @@ export const Wrapper = styled(Box)`
   ${media.lessThan('medium')`
     width: 100%;
     max-width: 100%;
-  `};
+  `}
 `;
 
 export const WrapperInputs = styled(Box)`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 1rem;
   width: 45rem;
 
   ${media.lessThan('medium')`
-    flex-direction: column;
     width: 100%;
     max-width: 100%;
   `}
@@ -45,36 +44,6 @@ export const WrapperInputsTwo = styled(Box)`
     width: 100%;
     max-width: 100%;
   `}
-`;
-
-export const WrapperButtonColorPicker = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 2.5rem;
-
-  ${media.lessThan('medium')`
-    flex-direction: column;
-    padding: 0rem;
-    max-width: 10vw;
-  `}
-`;
-
-export const WrapperColorPicker = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  padding: 0 17%;
-
-  ${media.lessThan('medium')`
-    padding: 0rem;
-    width: 100%;
-  `}
-`;
-
-export const ColorPicker = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  width: 6.7rem;
 `;
 
 export const WrapperCTA = styled(Box)`

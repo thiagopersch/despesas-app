@@ -1,10 +1,12 @@
 import { Category, FormattedCategory } from '@/model/Category';
+import { FormattedModules, Modules } from '@/model/Modules';
 import { FormattedMonth, Month } from '@/model/Month';
 import {
   FormattedPaymentMethods,
   PaymentMethods,
 } from '@/model/PaymentMethods';
 import { FormattedPriority, Priority } from '@/model/Priority';
+import { FormattedProfiles, Profiles } from '@/model/Profiles';
 import { FormattedTags, Tags } from '@/model/Tags';
 import { FormattedTypeAccounts, TypeAccounts } from '@/model/TypeAccounts';
 import { FormattedUsers, User } from '@/model/User';
@@ -75,6 +77,26 @@ export const typeAccountsMapper = (
     'DD/MM/YYYY [às] HH:mm:ss',
   ),
   formattedUpdatedAt: dayjs(typeAccounts.updatedAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+});
+
+export const modulesMapper = (modules: Modules): FormattedModules => ({
+  ...modules,
+  formattedCreatedAt: dayjs(modules.createdAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+  formattedUpdatedAt: dayjs(modules.updatedAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+});
+
+export const profilesMapper = (profiles: Profiles): FormattedProfiles => ({
+  ...profiles,
+  formattedCreatedAt: dayjs(profiles.createdAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+  formattedUpdatedAt: dayjs(profiles.updatedAt).format(
     'DD/MM/YYYY [às] HH:mm:ss',
   ),
 });
