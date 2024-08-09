@@ -97,7 +97,7 @@ const EditTagsModal = ({
       >
         <form onSubmit={handleSubmit(handleSaved)}>
           <Typography variant="h6" component="h2" color="primary" gutterBottom>
-            Editar prioridade
+            Editar
           </Typography>
           <S.WrapperInputs>
             <TextField

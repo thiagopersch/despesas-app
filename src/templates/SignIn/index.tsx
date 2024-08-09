@@ -2,7 +2,14 @@
 
 import ErrorMessage from '@/components/ErrorMessage';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+} from '@mui/material';
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -10,6 +17,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { schema } from './rules/schema';
 
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { signIn } from 'next-auth/react';
 import * as S from './styles';
 
@@ -22,6 +30,7 @@ type SchemaSignIn = z.infer<typeof schema>;
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<number>();
   const router = useRouter();
   const {
@@ -61,6 +70,16 @@ export default function SignIn() {
     [router],
   );
 
+  const handleShowPassword = () => {
+    setShowPassword((showPassword) => !showPassword);
+  };
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+  };
+
   return (
     <S.Wrapper>
       <Typography
@@ -87,7 +106,7 @@ export default function SignIn() {
           fullWidth
         />
         <TextField
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           {...register('password')}
           label="Senha"
           variant="filled"
@@ -95,6 +114,20 @@ export default function SignIn() {
           required
           disabled={loading}
           fullWidth
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                  aria-label="Visualizar senha"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         {error === 401 && (
           <Typography color="error" sx={{ textAlign: 'center' }}>

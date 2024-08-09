@@ -48,6 +48,10 @@ const dropdown: SidebarRoute[] = [
     name: 'Contas',
     path: '/type-accounts',
   },
+  {
+    name: 'Situações',
+    path: '/situation',
+  },
 ];
 
 const menu = [

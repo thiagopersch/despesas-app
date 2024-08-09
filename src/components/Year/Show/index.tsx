@@ -75,11 +75,11 @@ export default function ShowYear() {
   };
 
   const columns: GridColDef[] = [
-    { field: 'year', headerName: 'Ano', width: 250, editable: false },
+    { field: 'year', headerName: 'Ano', width: 200, editable: false },
     {
       field: 'status',
       headerName: 'Situação',
-      width: 250,
+      width: 200,
       editable: false,
       renderCell: (params) => {
         return <StatusIcon status={params.value} />;

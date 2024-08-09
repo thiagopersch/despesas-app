@@ -73,11 +73,11 @@ export default function TablePriority() {
   };
 
   const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Nome', width: 350, editable: false },
+    { field: 'name', headerName: 'Nome', width: 200, editable: false },
     {
       field: 'status',
       headerName: 'Situação',
-      width: 350,
+      width: 200,
       editable: false,
       renderCell: (params) => {
         return <StatusIcon status={params.value} />;
@@ -87,14 +87,14 @@ export default function TablePriority() {
       field: 'formattedCreatedAt',
       headerName: 'Criado em',
       type: 'string',
-      width: 350,
+      width: 200,
       editable: false,
     },
     {
       field: 'formattedUpdatedAt',
       headerName: 'Atualizado em',
       type: 'string',
-      width: 350,
+      width: 200,
       editable: false,
     },
     {

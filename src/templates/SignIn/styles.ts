@@ -1,5 +1,5 @@
-import styled, { css } from "styled-components";
-import media from "styled-media-query";
+import styled, { css } from 'styled-components';
+import media from 'styled-media-query';
 
 export const Wrapper = styled.div`
   ${({ theme }) => css`
@@ -11,7 +11,7 @@ export const Wrapper = styled.div`
     height: 100vh;
     margin: -5rem auto;
 
-    ${media.lessThan("medium")`
+    ${media.lessThan('medium')`
       padding: 0 10%;
       width: 100%;
     `}
@@ -21,11 +21,11 @@ export const Wrapper = styled.div`
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  width: 50%;
-  gap: 2rem;
+  width: 35%;
+  gap: 1rem;
 
-  ${media.lessThan("medium")`
-      padding: 10%;
-      width: 100vw;
-    `}
+  ${media.lessThan('medium')`
+    padding: 10%;
+    width: 100vw;
+  `}
 `;

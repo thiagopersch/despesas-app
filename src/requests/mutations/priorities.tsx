@@ -14,7 +14,7 @@ export function useAddPriorityMutation(session?: Session | null) {
       const requestData = { ...values, id: values.id ? values.id : undefined };
 
       if (!requestData.id) {
-        return api.post('/priority/create', requestData);
+        return api.post('/priority/', requestData);
       } else {
         return api.patch(`/priority/${requestData.id}`, requestData);
       }

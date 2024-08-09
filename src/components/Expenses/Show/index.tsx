@@ -2,11 +2,10 @@
 
 import CTA from '@/components/CTA';
 import ContainerTable from '@/components/ContainerTable';
-import StatusIcon from '@/components/StatusTable';
 import NoRow from '@/components/Table/NoRow';
-import { useDeleteTagsWithConfirmation } from '@/hooks/useDeleteTagsWithConfirmation';
-import { FormattedTags, Tags } from '@/model/Tags';
-import { listTags } from '@/requests/queries/tags';
+import { useDeleteExpensesWithConfirmation } from '@/hooks/useDeleteExpensesWithConfirmation';
+import { Expenses, FormattedExpenses } from '@/model/Expenses';
+import { listExpenses } from '@/requests/queries/expenses';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import { Tooltip } from '@mui/material';
@@ -22,49 +21,49 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import * as React from 'react';
-import EditTagsModal from '../Edit';
+import EditExpensesModal from '../Edit';
 
-const ShowTags = () => {
-  const [rows, setRows] = React.useState<FormattedTags[]>([]);
+const ShowExpenses = () => {
+  const [rows, setRows] = React.useState<FormattedExpenses[]>([]);
   const [openPopup, setOpenPopup] = React.useState(false);
-  const [TagsToEdit, setTagsToEdit] = React.useState<Tags>();
+  const [ExpensesToEdit, setExpensesToEdit] = React.useState<Expenses>();
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
 
   const {
-    data: Tags,
+    data: Expenses,
     isError,
     isLoading,
     refetch,
-  } = useQuery<FormattedTags[]>({
-    queryKey: ['get-Tags'],
-    queryFn: () => listTags(),
+  } = useQuery<FormattedExpenses[]>({
+    queryKey: ['get-Expenses'],
+    queryFn: () => listExpenses(),
   });
 
   React.useEffect(() => {
-    if (Tags) {
-      setRows(Tags);
+    if (Expenses) {
+      setRows(Expenses);
     }
-  }, [Tags]);
+  }, [Expenses]);
 
   const { data: session } = useSession();
   const { confirmDelete, renderDeletePopup } =
-    useDeleteTagsWithConfirmation(session);
+    useDeleteExpensesWithConfirmation(session);
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const TagsToEdit = rows.find((row) => row.id === id);
-    if (TagsToEdit) {
+    const ExpensesToEdit = rows.find((row) => row.id === id);
+    if (ExpensesToEdit) {
       setOpenPopup(true);
-      setTagsToEdit(TagsToEdit);
+      setExpensesToEdit(ExpensesToEdit);
     }
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
     try {
-      const TagsToDelete = rows.find((row) => row.id === id);
-      if (TagsToDelete) {
-        confirmDelete(TagsToDelete);
+      const ExpensesToDelete = rows.find((row) => row.id === id);
+      if (ExpensesToDelete) {
+        confirmDelete(ExpensesToDelete);
         const updatedRows = rows.filter((row) => row.id === id);
         setRows(updatedRows);
       }
@@ -76,29 +75,23 @@ const ShowTags = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Nome', width: 200, editable: false },
+    { field: 'name', headerName: 'Nome', width: 350 },
     {
-      field: 'status',
+      field: 'situation',
       headerName: 'Situação',
-      width: 200,
-      editable: false,
-      renderCell: (params) => {
-        return <StatusIcon status={params.value} />;
-      },
+      width: 350,
     },
     {
       field: 'formattedCreatedAt',
       headerName: 'Criado em',
       type: 'string',
-      width: 300,
-      editable: false,
+      width: 350,
     },
     {
       field: 'formattedUpdatedAt',
       headerName: 'Atualizado em',
       type: 'string',
-      width: 300,
-      editable: false,
+      width: 350,
     },
     {
       field: 'actions',
@@ -133,7 +126,7 @@ const ShowTags = () => {
     <>
       <ContainerTable>
         <CTA>
-          <Link href={`/tags/create`}>
+          <Link href={`/expenses/create`}>
             <Button variant="contained" color="success" size="large">
               Cadastrar
             </Button>
@@ -145,7 +138,6 @@ const ShowTags = () => {
           editMode="cell"
           rowModesModel={rowModesModel}
           loading={isLoading}
-          checkboxSelection
           autoHeight
           pageSizeOptions={[10, 50, 100]}
           initialState={{
@@ -153,7 +145,7 @@ const ShowTags = () => {
               paginationModel: { page: 0, pageSize: 10 },
             },
             sorting: {
-              sortModel: [{ field: 'year', sort: 'asc' }],
+              sortModel: [{ field: 'name', sort: 'asc' }],
             },
           }}
           slots={{
@@ -167,10 +159,10 @@ const ShowTags = () => {
       </ContainerTable>
 
       {openPopup && (
-        <EditTagsModal
+        <EditExpensesModal
           handleClose={() => setOpenPopup(false)}
-          tags={TagsToEdit}
-          id={TagsToEdit?.id}
+          expenses={ExpensesToEdit}
+          id={ExpensesToEdit?.id}
         />
       )}
 
@@ -179,4 +171,4 @@ const ShowTags = () => {
   );
 };
 
-export default ShowTags;
+export default ShowExpenses;

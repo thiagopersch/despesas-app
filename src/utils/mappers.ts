@@ -1,4 +1,5 @@
 import { Category, FormattedCategory } from '@/model/Category';
+import { Expenses, FormattedExpenses } from '@/model/Expenses';
 import { FormattedModules, Modules } from '@/model/Modules';
 import { FormattedMonth, Month } from '@/model/Month';
 import {
@@ -7,6 +8,7 @@ import {
 } from '@/model/PaymentMethods';
 import { FormattedPriority, Priority } from '@/model/Priority';
 import { FormattedProfiles, Profiles } from '@/model/Profiles';
+import { FormattedSituation, Situation } from '@/model/Situation';
 import { FormattedTags, Tags } from '@/model/Tags';
 import { FormattedTypeAccounts, TypeAccounts } from '@/model/TypeAccounts';
 import { FormattedUsers, User } from '@/model/User';
@@ -97,6 +99,26 @@ export const profilesMapper = (profiles: Profiles): FormattedProfiles => ({
     'DD/MM/YYYY [às] HH:mm:ss',
   ),
   formattedUpdatedAt: dayjs(profiles.updatedAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+});
+
+export const expensesMapper = (expenses: Expenses): FormattedExpenses => ({
+  ...expenses,
+  formattedCreatedAt: dayjs(expenses.createdAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+  formattedUpdatedAt: dayjs(expenses.updatedAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+});
+
+export const situationMapper = (situation: Situation): FormattedSituation => ({
+  ...situation,
+  formattedCreatedAt: dayjs(situation.createdAt).format(
+    'DD/MM/YYYY [às] HH:mm:ss',
+  ),
+  formattedUpdatedAt: dayjs(situation.updatedAt).format(
     'DD/MM/YYYY [às] HH:mm:ss',
   ),
 });

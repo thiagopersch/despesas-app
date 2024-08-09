@@ -1,5 +1,5 @@
-import CreateCategory from '@/templates/Category/create';
+import CreatePriority from '@/templates/Priority/create';
 
 export default function CreatePriorityPage() {
-  return <CreateCategory />;
+  return <CreatePriority />;
 }

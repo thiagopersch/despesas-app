@@ -2,14 +2,15 @@
 
 import CTA from '@/components/CTA';
 import ContainerTable from '@/components/ContainerTable';
+
 import StatusIcon from '@/components/StatusTable';
 import NoRow from '@/components/Table/NoRow';
-import { useDeleteTagsWithConfirmation } from '@/hooks/useDeleteTagsWithConfirmation';
-import { FormattedTags, Tags } from '@/model/Tags';
-import { listTags } from '@/requests/queries/tags';
+import { useDeleteSituationWithConfirmation } from '@/hooks/useDeleteSituationWithConfirmation';
+import { FormattedSituation, Situation } from '@/model/Situation';
+import { listSituation } from '@/requests/queries/situation';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
-import { Tooltip } from '@mui/material';
+import { Chip, Tooltip } from '@mui/material';
 import Button from '@mui/material/Button';
 import {
   DataGrid,
@@ -22,49 +23,48 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import * as React from 'react';
-import EditTagsModal from '../Edit';
+import EditSituationModal from '../Edit';
 
-const ShowTags = () => {
-  const [rows, setRows] = React.useState<FormattedTags[]>([]);
+const ShowSituation = () => {
+  const [rows, setRows] = React.useState<FormattedSituation[]>([]);
   const [openPopup, setOpenPopup] = React.useState(false);
-  const [TagsToEdit, setTagsToEdit] = React.useState<Tags>();
+  const [SituationToEdit, setSituationToEdit] = React.useState<Situation>();
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
 
   const {
-    data: Tags,
-    isError,
+    data: Situation,
     isLoading,
     refetch,
-  } = useQuery<FormattedTags[]>({
-    queryKey: ['get-Tags'],
-    queryFn: () => listTags(),
+  } = useQuery<FormattedSituation[]>({
+    queryKey: ['get-Situation'],
+    queryFn: () => listSituation(),
   });
 
   React.useEffect(() => {
-    if (Tags) {
-      setRows(Tags);
+    if (Situation) {
+      setRows(Situation);
     }
-  }, [Tags]);
+  }, [Situation]);
 
   const { data: session } = useSession();
   const { confirmDelete, renderDeletePopup } =
-    useDeleteTagsWithConfirmation(session);
+    useDeleteSituationWithConfirmation(session);
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const TagsToEdit = rows.find((row) => row.id === id);
-    if (TagsToEdit) {
+    const SituationToEdit = rows.find((row) => row.id === id);
+    if (SituationToEdit) {
       setOpenPopup(true);
-      setTagsToEdit(TagsToEdit);
+      setSituationToEdit(SituationToEdit);
     }
   };
 
   const handleDeleteClick = (id: GridRowId) => () => {
     try {
-      const TagsToDelete = rows.find((row) => row.id === id);
-      if (TagsToDelete) {
-        confirmDelete(TagsToDelete);
+      const SituationToDelete = rows.find((row) => row.id === id);
+      if (SituationToDelete) {
+        confirmDelete(SituationToDelete);
         const updatedRows = rows.filter((row) => row.id === id);
         setRows(updatedRows);
       }
@@ -76,12 +76,30 @@ const ShowTags = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Nome', width: 200, editable: false },
+    { field: 'name', headerName: 'Nome', width: 200 },
+    {
+      field: 'color',
+      headerName: 'Color',
+      width: 200,
+      renderCell(params) {
+        return (
+          <Chip
+            style={{
+              color: 'white',
+              backgroundColor: params.value,
+              width: '100%',
+            }}
+            label={params.value}
+          >
+            {params.value}
+          </Chip>
+        );
+      },
+    },
     {
       field: 'status',
       headerName: 'Situação',
       width: 200,
-      editable: false,
       renderCell: (params) => {
         return <StatusIcon status={params.value} />;
       },
@@ -90,14 +108,13 @@ const ShowTags = () => {
       field: 'formattedCreatedAt',
       headerName: 'Criado em',
       type: 'string',
-      width: 300,
-      editable: false,
+      width: 250,
     },
     {
       field: 'formattedUpdatedAt',
       headerName: 'Atualizado em',
       type: 'string',
-      width: 300,
+      width: 250,
       editable: false,
     },
     {
@@ -133,7 +150,7 @@ const ShowTags = () => {
     <>
       <ContainerTable>
         <CTA>
-          <Link href={`/tags/create`}>
+          <Link href={`/situation/create`}>
             <Button variant="contained" color="success" size="large">
               Cadastrar
             </Button>
@@ -145,7 +162,6 @@ const ShowTags = () => {
           editMode="cell"
           rowModesModel={rowModesModel}
           loading={isLoading}
-          checkboxSelection
           autoHeight
           pageSizeOptions={[10, 50, 100]}
           initialState={{
@@ -153,7 +169,7 @@ const ShowTags = () => {
               paginationModel: { page: 0, pageSize: 10 },
             },
             sorting: {
-              sortModel: [{ field: 'year', sort: 'asc' }],
+              sortModel: [{ field: 'name', sort: 'asc' }],
             },
           }}
           slots={{
@@ -167,10 +183,10 @@ const ShowTags = () => {
       </ContainerTable>
 
       {openPopup && (
-        <EditTagsModal
+        <EditSituationModal
           handleClose={() => setOpenPopup(false)}
-          tags={TagsToEdit}
-          id={TagsToEdit?.id}
+          situation={SituationToEdit}
+          id={SituationToEdit?.id}
         />
       )}
 
@@ -179,4 +195,4 @@ const ShowTags = () => {
   );
 };
 
-export default ShowTags;
+export default ShowSituation;

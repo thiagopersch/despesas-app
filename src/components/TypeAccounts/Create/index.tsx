@@ -54,13 +54,7 @@ const CreateTypeAccount = ({ typeAccounts }: TypeAccountsProps) => {
     criteriaMode: 'all',
     mode: 'all',
     resolver: zodResolver(schema),
-    defaultValues: {
-      bank_code: typeAccounts?.bank_code ?? '',
-      bank_name: typeAccounts?.bank_name ?? '',
-      bank_type: typeAccounts?.bank_type ?? '',
-      bank_color: typeAccounts?.bank_color ?? '',
-      status: typeAccounts?.status ?? true,
-    },
+    defaultValues: typeAccounts,
   });
 
   const mutation = useAddTypeAccountsMutation();
